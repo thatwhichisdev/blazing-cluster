@@ -18,8 +18,14 @@
     ../../modules/fonts.nix
   ];
 
-  environment.systemPackages =
-    [ pkgs.chirpstack-concentratord pkgs.chirpstack-mqtt-forwarder ];
+  nix.settings = {
+    experimental-features = [ "nix-command" "flakes" "pipe-operators" ];
+    substituters = [ "https://nixos-raspberrypi.cachix.org" ];
+    trusted-public-keys = [
+      "nixos-raspberrypi.cachix.org-1:4iMO9LXa8BqhU+Rpg6LQKiGa2lsNh/j2oiYLNOQ5sPI="
+    ];
+    trusted-users = [ "root" "nixos" ];
+  };
 
   users.users.nixos = {
     isNormalUser = true;
@@ -32,8 +38,6 @@
 
   networking.hostId = "d3c2bfdf";
   networking.hostName = "computeblade1";
-
-  nix.settings.trusted-users = [ "nixos" ];
 
   security.polkit.enable = true;
   security.sudo = {
@@ -49,6 +53,7 @@
   ];
 
   home-manager.users.nixos.home = {
+    enableNixpkgsReleaseCheck = false;
     homeDirectory = lib.mkForce "/home/nixos";
     stateVersion = "25.05";
   };

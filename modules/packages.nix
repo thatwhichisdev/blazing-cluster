@@ -6,5 +6,6 @@
     ripgrep
     systemctl-tui
     uutils-coreutils-noprefix
+    usbutils
   ];
 }

@@ -1,5 +1,5 @@
 {
-  description = "Cluster of computblades with NixOS";
+  description = "Blazing Cluster";
 
   nixConfig = {
     bash-prompt = "[compute blade] ➜ ";
@@ -39,8 +39,8 @@
             ({ config, pkgs, lib, nixos-raspberrypi, disko, ... }: {
               imports = with nixos-raspberrypi.nixosModules; [
                 raspberry-pi-4.base
-                raspberry-pi-4.display-vc4
                 ./hosts/cb1/configuration.nix
+                ./hosts/cb1/hardware.nix
               ];
             })
           ];
@@ -52,8 +52,8 @@
             ({ config, pkgs, lib, nixos-raspberrypi, disko, ... }: {
               imports = with nixos-raspberrypi.nixosModules; [
                 raspberry-pi-4.base
-                raspberry-pi-4.display-vc4
                 ./hosts/cb2/configuration.nix
+                ./hosts/cb2/hardware.nix
               ];
             })
           ];
@@ -66,7 +66,6 @@
               imports = with nixos-raspberrypi.nixosModules; [
                 raspberry-pi-5.base
                 raspberry-pi-5.page-size-16k
-                raspberry-pi-5.display-vc4
                 ./hosts/cb3/configuration.nix
                 ./hosts/cb3/hardware.nix
               ];
@@ -99,7 +98,6 @@
               imports = with nixos-raspberrypi.nixosModules; [
                 raspberry-pi-5.base
                 raspberry-pi-5.page-size-16k
-                raspberry-pi-5.display-vc4
                 ./hosts/cb4/configuration.nix
                 ./hosts/cb4/hardware.nix
               ];

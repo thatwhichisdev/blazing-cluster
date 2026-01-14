@@ -1,7 +1,4 @@
-{ inputs, pkgs, config, lib, ... }:
-let
-  chirpstack = pkgs.callPackage ../../modules/chirpstack-network-server.nix { };
-in {
+{ inputs, pkgs, config, lib, ... }: {
   imports = [
     inputs.disko.nixosModules.disko
     inputs.home-manager.nixosModules.home-manager
@@ -21,7 +18,14 @@ in {
     ../../modules/fonts.nix
   ];
 
-  environment.systemPackages = [ chirpstack ];
+  nix.settings = {
+    experimental-features = [ "nix-command" "flakes" "pipe-operators" ];
+    substituters = [ "https://nixos-raspberrypi.cachix.org" ];
+    trusted-public-keys = [
+      "nixos-raspberrypi.cachix.org-1:4iMO9LXa8BqhU+Rpg6LQKiGa2lsNh/j2oiYLNOQ5sPI="
+    ];
+    trusted-users = [ "root" "nixos" ];
+  };
 
   users.users.nixos = {
     isNormalUser = true;
@@ -34,8 +38,6 @@ in {
 
   networking.hostId = "ab6cce0f";
   networking.hostName = "computeblade4";
-
-  nix.settings.trusted-users = [ "nixos" ];
 
   security.polkit.enable = true;
   security.sudo = {
@@ -51,6 +53,7 @@ in {
   ];
 
   home-manager.users.nixos.home = {
+    enableNixpkgsReleaseCheck = false;
     homeDirectory = lib.mkForce "/home/nixos";
     stateVersion = "25.05";
   };

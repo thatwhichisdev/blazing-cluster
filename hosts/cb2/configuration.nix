@@ -1,4 +1,10 @@
-{ inputs, pkgs, config, lib, ... }: {
+{ inputs, pkgs, config, lib, ... }:
+let
+  chirpstack-concentratord =
+    pkgs.callPackage ../../pkgs/chirpstack-concentratord/package.nix { };
+  chirpstack-gateway-bridge =
+    pkgs.callPackage ../../pkgs/chirpstack-gateway-bridge/package.nix { };
+in {
   imports = [
     inputs.disko.nixosModules.disko
     inputs.home-manager.nixosModules.home-manager
@@ -18,6 +24,18 @@
     ../../modules/fonts.nix
   ];
 
+  environment.systemPackages =
+    [ chirpstack-concentratord chirpstack-gateway-bridge ];
+
+  nix.settings = {
+    experimental-features = [ "nix-command" "flakes" "pipe-operators" ];
+    substituters = [ "https://nixos-raspberrypi.cachix.org" ];
+    trusted-public-keys = [
+      "nixos-raspberrypi.cachix.org-1:4iMO9LXa8BqhU+Rpg6LQKiGa2lsNh/j2oiYLNOQ5sPI="
+    ];
+    trusted-users = [ "root" "nixos" ];
+  };
+
   users.users.nixos = {
     isNormalUser = true;
     name = "nixos";
@@ -29,8 +47,6 @@
 
   networking.hostId = "32835dd8";
   networking.hostName = "computeblade2";
-
-  nix.settings.trusted-users = [ "nixos" ];
 
   security.polkit.enable = true;
   security.sudo = {
@@ -46,6 +62,7 @@
   ];
 
   home-manager.users.nixos.home = {
+    enableNixpkgsReleaseCheck = false;
     homeDirectory = lib.mkForce "/home/nixos";
     stateVersion = "25.05";
   };
