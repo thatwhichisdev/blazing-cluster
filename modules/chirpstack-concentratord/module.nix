@@ -111,21 +111,16 @@ in {
         Group = cfg.group;
         WorkingDirectory = cfg.stateDir;
         RuntimeDirectory = "chirpstack-concentratord";
-        RuntimeDirectoryMode = "0755";
-
+        RuntimeDirectoryMode = "0775";
+        UMask = "0002";
         ExecStart = exec;
 
         Restart = "on-failure";
         RestartSec = 2;
 
-        # Mild hardening without getting clever
         NoNewPrivileges = true;
         ProtectSystem = "no";
-        ReadWritePaths = [ cfg.stateDir "/tmp" ];
-
-        # Concentratord often needs access to SPI devices, USB serial, etc.
-        # If it fails with "permission denied" on /dev/spidev* or /dev/tty*,
-        # you’ll either run as root or handle udev/group perms properly.
+        ReadWritePaths = [ cfg.stateDir "/run/chirpstack-concentratord" ];
       };
     };
   };

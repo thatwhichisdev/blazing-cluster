@@ -36,8 +36,9 @@ in {
 
     user = lib.mkOption {
       type = lib.types.str;
-      default = "chirpstack-gateway-bridge";
+      default = "chirpstack";
     };
+
     group = lib.mkOption {
       type = lib.types.str;
       default = "chirpstack";
@@ -87,20 +88,12 @@ in {
   };
 
   config = lib.mkIf cfg.enable {
-    users.groups.${cfg.group} = { };
-    users.users.${cfg.user} = {
-      isSystemUser = true;
-      group = cfg.group;
-      home = cfg.stateDir;
-      createHome = true;
-    };
 
     systemd.tmpfiles.rules = [
       "d ${cfg.stateDir} 0750 ${cfg.user} ${cfg.group} - -"
       "d ${cfg.configDir} 0755 root root - -"
     ];
 
-    # Install /etc/chirpstack-gateway-bridge/gateway-bridge.toml
     environment.etc."chirpstack-gateway-bridge/gateway-bridge.toml" = {
       source = configSource;
       mode = "0644";
@@ -127,10 +120,9 @@ in {
         Restart = "on-failure";
         RestartSec = 2;
 
-        # Mild hardening
         NoNewPrivileges = true;
         ProtectSystem = "no";
-        ReadWritePaths = [ cfg.stateDir "/tmp" ];
+        ReadWritePaths = [ cfg.stateDir "/run/chirpstack-concentratord" ];
       };
     };
   };
