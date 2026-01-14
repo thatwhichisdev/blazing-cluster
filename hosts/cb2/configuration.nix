@@ -1,10 +1,4 @@
-{ inputs, pkgs, config, lib, ... }:
-let
-  chirpstack-concentratord =
-    pkgs.callPackage ../../pkgs/chirpstack-concentratord/package.nix { };
-  chirpstack-gateway-bridge =
-    pkgs.callPackage ../../pkgs/chirpstack-gateway-bridge/package.nix { };
-in {
+{ inputs, pkgs, config, lib, ... }: {
   imports = [
     inputs.disko.nixosModules.disko
     inputs.home-manager.nixosModules.home-manager
@@ -22,10 +16,9 @@ in {
     ../../modules/yazi.nix
     ../../modules/starship.nix
     ../../modules/fonts.nix
+    ../../modules/chirpstack-concentratord/module.nix
+    ../../modules/chirpstack-gateway-bridge/module.nix
   ];
-
-  environment.systemPackages =
-    [ chirpstack-concentratord chirpstack-gateway-bridge ];
 
   nix.settings = {
     experimental-features = [ "nix-command" "flakes" "pipe-operators" ];
@@ -66,6 +59,18 @@ in {
     enableNixpkgsReleaseCheck = false;
     homeDirectory = lib.mkForce "/home/nixos";
     stateVersion = "25.05";
+  };
+
+  services.chirpstack-concentratord = {
+    enable = true;
+    package = pkgs.chirpstack-concentratord;
+    configFile = ../../modules/chirpstack-concentratord/concentratord.toml;
+  };
+
+  services.chirpstack-gateway-bridge = {
+    enable = true;
+    package = pkgs.chirpstack-gateway-bridge;
+    configFile = ../../modules/chirpstack-gateway-bridge/gateway-bridge.toml;
   };
 
   # We are stateless, so just default to latest.inherit
