@@ -162,8 +162,6 @@ in {
 
         # mild hardening without breaking sqlite writes
         NoNewPrivileges = true;
-        PrivateTmp = true;
-        ProtectHome = true;
         ProtectSystem = "strict";
         ReadWritePaths = [ cfg.stateDir ];
       };

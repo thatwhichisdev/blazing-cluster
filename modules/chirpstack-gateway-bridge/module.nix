@@ -129,8 +129,6 @@ in {
 
         # Mild hardening
         NoNewPrivileges = true;
-        PrivateTmp = true;
-        ProtectHome = true;
         ProtectSystem = "strict";
         ReadWritePaths = [ cfg.stateDir ];
       };
