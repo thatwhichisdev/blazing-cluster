@@ -30,11 +30,12 @@ disable_crc_filter = false
 # Configuration for the (ZeroMQ based) API.
 [concentratord.api]
 # Event PUB socket bind.
-event_bind = "ipc:///tmp/concentratord_event"
-
+#event_bind = "ipc:///tmp/concentratord_event"
 # Command REP socket bind.
-command_bind = "ipc:///tmp/concentratord_command"
+#command_bind = "ipc:///tmp/concentratord_command"
 
+event_bind = "ipc:///run/chirpstack-concentratord/concentratord_event"
+command_bind = "ipc:///run/chirpstack-concentratord/concentratord_command"
 
 # LoRa gateway configuration.
 [gateway]

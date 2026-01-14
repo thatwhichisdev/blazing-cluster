@@ -77,11 +77,11 @@ fake_rx_time = false
 [backend.concentratord]
 
 # Event API URL.
-event_url = "ipc:///tmp/concentratord_event"
-
+# event_url = "ipc:///tmp/concentratord_event"
 # Command API URL.
-command_url = "ipc:///tmp/concentratord_command"
-
+# command_url = "ipc:///tmp/concentratord_command"
+event_url = "ipc:///run/chirpstack-concentratord/concentratord_event"
+command_url = "ipc:///run/chirpstack-concentratord/concentratord_command"
 
 # Basic Station backend.
 [backend.basic_station]

@@ -110,6 +110,8 @@ in {
         User = cfg.user;
         Group = cfg.group;
         WorkingDirectory = cfg.stateDir;
+        RuntimeDirectory = "chirpstack-concentratord";
+        RuntimeDirectoryMode = "0755";
 
         ExecStart = exec;
 
