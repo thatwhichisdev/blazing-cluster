@@ -17,24 +17,24 @@
     ../../modules/starship.nix
     ../../modules/fonts.nix
     ../../modules/nix.nix
+    ../../modules/security.nix
   ];
+
+  networking.hostId = "d3c2bfdf";
+  networking.hostName = "computeblade1";
 
   users.users.nixos = {
     isNormalUser = true;
     name = "nixos";
     home = "/home/nixos";
-    extraGroups =
-      [ "wheel" "networkmanager" "video" "audio" "input" "dialout" "plugdev" ];
+    extraGroups = [ "wheel" "networkmanager" "input" "dialout" "plugdev" ];
     shell = pkgs.nushell;
   };
 
-  networking.hostId = "d3c2bfdf";
-  networking.hostName = "computeblade1";
-
-  security.polkit.enable = true;
-  security.sudo = {
-    enable = true;
-    wheelNeedsPassword = false;
+  home-manager.users.nixos.home = {
+    enableNixpkgsReleaseCheck = false;
+    homeDirectory = lib.mkForce "/home/nixos";
+    stateVersion = "25.05";
   };
 
   system.nixos.tags = let cfg = config.boot.loader.raspberryPi;
@@ -44,12 +44,5 @@
     config.boot.kernelPackages.kernel.version
   ];
 
-  home-manager.users.nixos.home = {
-    enableNixpkgsReleaseCheck = false;
-    homeDirectory = lib.mkForce "/home/nixos";
-    stateVersion = "25.05";
-  };
-
-  # We are stateless, so just default to latest.inherit
   system.stateVersion = config.system.nixos.release;
 }

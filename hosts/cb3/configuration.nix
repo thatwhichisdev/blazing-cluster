@@ -20,42 +20,20 @@
     ../../modules/sqlite.nix
     ../../modules/mosquitto.nix
     ../../modules/chirpstack-network-server/module.nix
+    ../../modules/nix.nix
+    ../../modules/security.nix
   ];
 
-  nix.settings = {
-    experimental-features = [ "nix-command" "flakes" "pipe-operators" ];
-    substituters = [ "https://nixos-raspberrypi.cachix.org" ];
-    trusted-public-keys = [
-      "nixos-raspberrypi.cachix.org-1:4iMO9LXa8BqhU+Rpg6LQKiGa2lsNh/j2oiYLNOQ5sPI="
-    ];
-    trusted-users = [ "root" "nixos" ];
-    download-buffer-size = 268435456;
-  };
+  networking.hostId = "20a48094";
+  networking.hostName = "computeblade3";
 
   users.users.nixos = {
     isNormalUser = true;
     name = "nixos";
     home = "/home/nixos";
-    extraGroups =
-      [ "wheel" "networkmanager" "video" "audio" "input" "dialout" "plugdev" ];
+    extraGroups = [ "wheel" "networkmanager" "input" "dialout" "plugdev" ];
     shell = pkgs.nushell;
   };
-
-  networking.hostId = "20a48094";
-  networking.hostName = "computeblade3";
-
-  security.polkit.enable = true;
-  security.sudo = {
-    enable = true;
-    wheelNeedsPassword = false;
-  };
-
-  system.nixos.tags = let cfg = config.boot.loader.raspberryPi;
-  in [
-    "raspberry-pi-${cfg.variant}"
-    cfg.bootloader
-    config.boot.kernelPackages.kernel.version
-  ];
 
   home-manager.users.nixos.home = {
     enableNixpkgsReleaseCheck = false;
@@ -71,6 +49,12 @@
     uiPort = 8080;
   };
 
-  # We are stateless, so just default to latest.inherit
+  system.nixos.tags = let cfg = config.boot.loader.raspberryPi;
+  in [
+    "raspberry-pi-${cfg.variant}"
+    cfg.bootloader
+    config.boot.kernelPackages.kernel.version
+  ];
+
   system.stateVersion = config.system.nixos.release;
 }
