@@ -32,10 +32,10 @@ in stdenvNoCC.mkDerivation {
 
     # The tarball should contain chirpstack-sqlite.
     if [ -f source/chirpstack-sqlite ]; then
-      install -m755 source/chirpstack-sqlite "$out/bin/chirpstack-sqlite"
+      install -m755 source/chirpstack-sqlite "$out/bin/chirpstack-network-server"
     elif [ -f source/chirpstack ]; then
       # fallback if upstream ever renames it (humans love doing that)
-      install -m755 source/chirpstack "$out/bin/chirpstack-sqlite"
+      install -m755 source/chirpstack "$out/bin/chirpstack-network-server"
     else
       echo "Could not find chirpstack-sqlite binary in tarball contents:" >&2
       ls -la source >&2
