@@ -35,7 +35,7 @@ in {
 
     user = lib.mkOption {
       type = lib.types.str;
-      default = "chirpstack-concentratord";
+      default = "chirpstack";
     };
     group = lib.mkOption {
       type = lib.types.str;
