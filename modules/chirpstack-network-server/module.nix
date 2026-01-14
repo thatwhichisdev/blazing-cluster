@@ -63,6 +63,15 @@ in {
         "Path to a chirpstack.toml file to install into /etc/chirpstack/chirpstack.toml.";
     };
 
+    regionFiles = lib.mkOption {
+      type = lib.types.listOf lib.types.path;
+      default = [ ];
+      description = ''
+        List of region_*.toml files (e.g. region_eu868.toml) to be installed
+        alongside chirpstack.toml in the configDir.
+      '';
+    };
+
     configText = lib.mkOption {
       type = lib.types.lines;
       default = ''
@@ -110,11 +119,20 @@ in {
       "d ${cfg.configDir} 0755 root root - -"
     ];
 
-    # Install config file into configDir/chirpstack.toml
-    environment.etc."chirpstack/chirpstack.toml" = {
-      source = configSource;
-      mode = "0644";
-    };
+    # Install region_*.toml files next to chirpstack.toml
+    environment.etc = lib.mkMerge ([{
+      "chirpstack/chirpstack.toml" = {
+        source = configSource;
+        mode = "0644";
+      };
+    }] ++ map (regionFile:
+      let name = builtins.baseNameOf regionFile;
+      in {
+        "chirpstack/${name}" = {
+          source = regionFile;
+          mode = "0644";
+        };
+      }) cfg.regionFiles);
 
     # Service
     systemd.services.chirpstack-network-server = {

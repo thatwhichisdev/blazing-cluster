@@ -66,6 +66,7 @@
   services.chirpstack-network-server = {
     enable = true;
     configFile = ../../modules/chirpstack-network-server/chirpstack.toml;
+    regionFiles = [ ../../modules/chirpstack-network-server/region_eu868.toml ];
     openFirewall = true;
     uiPort = 8080;
   };
