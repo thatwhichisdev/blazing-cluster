@@ -118,8 +118,8 @@ in {
 
         # Mild hardening without getting clever
         NoNewPrivileges = true;
-        ProtectSystem = "strict";
-        ReadWritePaths = [ cfg.stateDir ];
+        ProtectSystem = "no";
+        ReadWritePaths = [ cfg.stateDir "/tmp" ];
 
         # Concentratord often needs access to SPI devices, USB serial, etc.
         # If it fails with "permission denied" on /dev/spidev* or /dev/tty*,

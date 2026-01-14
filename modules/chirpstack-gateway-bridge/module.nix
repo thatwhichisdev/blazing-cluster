@@ -129,8 +129,8 @@ in {
 
         # Mild hardening
         NoNewPrivileges = true;
-        ProtectSystem = "strict";
-        ReadWritePaths = [ cfg.stateDir ];
+        ProtectSystem = "no";
+        ReadWritePaths = [ cfg.stateDir "/tmp" ];
       };
     };
   };

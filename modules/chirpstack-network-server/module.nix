@@ -162,7 +162,7 @@ in {
 
         # mild hardening without breaking sqlite writes
         NoNewPrivileges = true;
-        ProtectSystem = "strict";
+        ProtectSystem = "no";
         ReadWritePaths = [ cfg.stateDir ];
       };
     };
