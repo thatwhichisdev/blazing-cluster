@@ -85,6 +85,7 @@ in {
       group = cfg.group;
       home = cfg.stateDir;
       createHome = true;
+      extraGroups = [ "dialout" ];
     };
 
     systemd.tmpfiles.rules = [
