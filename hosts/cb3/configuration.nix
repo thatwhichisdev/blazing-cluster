@@ -1,8 +1,4 @@
-{ inputs, pkgs, config, lib, ... }:
-let
-  chirpstack-network-server =
-    pkgs.callPackage ../../pkgs/chirpstack-network-server/package.nix { };
-in {
+{ inputs, pkgs, config, lib, ... }: {
   imports = [
     inputs.disko.nixosModules.disko
     inputs.home-manager.nixosModules.home-manager
@@ -23,9 +19,8 @@ in {
     ../../modules/redis.nix
     ../../modules/sqlite.nix
     ../../modules/mosquitto.nix
+    ../../modules/chirpstack-network-server/module.nix
   ];
-
-  environment.systemPackages = [ chirpstack-network-server ];
 
   nix.settings = {
     experimental-features = [ "nix-command" "flakes" "pipe-operators" ];
@@ -66,6 +61,13 @@ in {
     enableNixpkgsReleaseCheck = false;
     homeDirectory = lib.mkForce "/home/nixos";
     stateVersion = "25.05";
+  };
+
+  services.chirpstack-network-server = {
+    enable = true;
+    configFile = ../../modules/chirpstack-network-server/chirpstack.toml;
+    openFirewall = true;
+    uiPort = 8080;
   };
 
   # We are stateless, so just default to latest.inherit
