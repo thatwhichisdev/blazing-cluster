@@ -25,6 +25,7 @@
       "nixos-raspberrypi.cachix.org-1:4iMO9LXa8BqhU+Rpg6LQKiGa2lsNh/j2oiYLNOQ5sPI="
     ];
     trusted-users = [ "root" "nixos" ];
+    download-buffer-size = 268435456;
   };
 
   users.users.nixos = {
