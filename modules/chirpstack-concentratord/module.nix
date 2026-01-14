@@ -29,7 +29,7 @@ in {
 
     binaryName = lib.mkOption {
       type = lib.types.str;
-      default = "chirpstack-concentratord";
+      default = "chirpstack-concentratord-sx1302";
       description = "Binary name inside the package /bin.";
     };
 
