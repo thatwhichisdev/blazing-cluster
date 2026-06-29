@@ -15,9 +15,9 @@ let
       format = "vfat";
       mountOptions = [
         "noatime"
-        # "noauto"
-        # "x-systemd.automount"
-        # "x-systemd.idle-timeout=1min"
+        "noauto"
+        "x-systemd.automount"
+        "x-systemd.idle-timeout=1min"
       ];
     };
   };
@@ -35,15 +35,16 @@ let
       # mountpoint = "/boot";
       mountOptions = [
         "noatime"
-        # "noauto"
-        # "x-systemd.automount"
-        # "x-systemd.idle-timeout=1min"
+        "noauto"
+        "x-systemd.automount"
+        "x-systemd.idle-timeout=1min"
         "umask=0077"
       ];
     };
   };
 
-in {
+in
+{
 
   boot.supportedFilesystems = [ "zfs" ];
   services.zfs.autoScrub.enable = true;
@@ -65,6 +66,23 @@ in {
           ESP = espPartition {
             label = "ESP";
             content.mountpoint = "/boot";
+          };
+
+          swap = {
+            size = "8G";
+            type = "8200"; # Linux swap
+            content = {
+              type = "swap";
+              discardPolicy = "both";
+              priority = 10;
+
+              # false unless you want hibernation/resume from this swap.
+              # For servers, usually keep this false.
+              resumeDevice = false;
+
+              # Optional. Makes boot less brittle if the device is missing.
+              mountOptions = [ "nofail" ];
+            };
           };
 
           zfs = {
@@ -104,11 +122,13 @@ in {
           canmount = "off";
         };
 
-        postCreateHook = let poolName = "rpool";
-        in "zfs list -t snapshot -H -o name | grep -E '^${poolName}@blank$' || zfs snapshot ${poolName}@blank";
+        postCreateHook =
+          let
+            poolName = "rpool";
+          in
+          "zfs list -t snapshot -H -o name | grep -E '^${poolName}@blank$' || zfs snapshot ${poolName}@blank";
 
         datasets = {
-
           # stuff which can be recomputed/easily redownloaded, e.g. nix store
           local = {
             type = "zfs_fs";
@@ -126,16 +146,22 @@ in {
           # _system_ data
           system = {
             type = "zfs_fs";
-            options = { mountpoint = "none"; };
+            options = {
+              mountpoint = "none";
+            };
           };
           "system/root" = {
             type = "zfs_fs";
-            options = { mountpoint = "legacy"; };
+            options = {
+              mountpoint = "legacy";
+            };
             mountpoint = "/";
           };
           "system/var" = {
             type = "zfs_fs";
-            options = { mountpoint = "legacy"; };
+            options = {
+              mountpoint = "legacy";
+            };
             mountpoint = "/var";
           };
 
@@ -149,12 +175,16 @@ in {
           };
           "safe/home" = {
             type = "zfs_fs";
-            options = { mountpoint = "legacy"; };
+            options = {
+              mountpoint = "legacy";
+            };
             mountpoint = "/home";
           };
           "safe/var/lib" = {
             type = "zfs_fs";
-            options = { mountpoint = "legacy"; };
+            options = {
+              mountpoint = "legacy";
+            };
             mountpoint = "/var/lib";
           };
 

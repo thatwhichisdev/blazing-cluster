@@ -1,4 +1,11 @@
-{ inputs, pkgs, config, lib, ... }: {
+{
+  inputs,
+  pkgs,
+  config,
+  lib,
+  ...
+}:
+{
   imports = [
     inputs.disko.nixosModules.disko
     inputs.home-manager.nixosModules.home-manager
@@ -27,22 +34,21 @@
     isNormalUser = true;
     name = "nixos";
     home = "/home/nixos";
-    extraGroups = [ "wheel" "networkmanager" "input" "dialout" "plugdev" ];
+    extraGroups = [
+      "wheel"
+      "networkmanager"
+      "input"
+      "dialout"
+      "plugdev"
+    ];
     shell = pkgs.nushell;
   };
 
   home-manager.users.nixos.home = {
     enableNixpkgsReleaseCheck = false;
     homeDirectory = lib.mkForce "/home/nixos";
-    stateVersion = "25.05";
+    stateVersion = "26.05";
   };
 
-  system.nixos.tags = let cfg = config.boot.loader.raspberryPi;
-  in [
-    "raspberry-pi-${cfg.variant}"
-    cfg.bootloader
-    config.boot.kernelPackages.kernel.version
-  ];
-
-  system.stateVersion = config.system.nixos.release;
+  system.stateVersion = "26.05";
 }

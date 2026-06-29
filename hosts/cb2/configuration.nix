@@ -1,4 +1,11 @@
-{ inputs, pkgs, config, lib, ... }: {
+{
+  inputs,
+  pkgs,
+  config,
+  lib,
+  ...
+}:
+{
   imports = [
     inputs.disko.nixosModules.disko
     inputs.home-manager.nixosModules.home-manager
@@ -29,34 +36,33 @@
     isNormalUser = true;
     name = "nixos";
     home = "/home/nixos";
-    extraGroups = [ "wheel" "networkmanager" "input" "dialout" "plugdev" ];
+    extraGroups = [
+      "wheel"
+      "networkmanager"
+      "input"
+      "dialout"
+      "plugdev"
+    ];
     shell = pkgs.nushell;
   };
 
   home-manager.users.nixos.home = {
     enableNixpkgsReleaseCheck = false;
     homeDirectory = lib.mkForce "/home/nixos";
-    stateVersion = "25.05";
+    stateVersion = "26.05";
   };
 
-  services.chirpstack-concentratord = {
-    enable = true;
-    package = pkgs.chirpstack-concentratord;
-    configFile = ../../modules/chirpstack-concentratord/concentratord.toml;
-  };
+  # services.chirpstack-concentratord = {
+  #   enable = true;
+  #   package = pkgs.chirpstack-concentratord;
+  #   configFile = ../../modules/chirpstack-concentratord/concentratord.toml;
+  # };
 
-  services.chirpstack-gateway-bridge = {
-    enable = true;
-    package = pkgs.chirpstack-gateway-bridge;
-    configFile = ../../modules/chirpstack-gateway-bridge/gateway-bridge.toml;
-  };
+  # services.chirpstack-gateway-bridge = {
+  #   enable = true;
+  #   package = pkgs.chirpstack-gateway-bridge;
+  #   configFile = ../../modules/chirpstack-gateway-bridge/gateway-bridge.toml;
+  # };
 
-  system.nixos.tags = let cfg = config.boot.loader.raspberryPi;
-  in [
-    "raspberry-pi-${cfg.variant}"
-    cfg.bootloader
-    config.boot.kernelPackages.kernel.version
-  ];
-
-  system.stateVersion = config.system.nixos.release;
+  system.stateVersion = "26.05";
 }
