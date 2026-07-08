@@ -1,8 +1,8 @@
 {
   inputs,
   pkgs,
-  config,
   lib,
+  config,
   ...
 }:
 {
@@ -50,5 +50,15 @@
     stateVersion = "26.05";
   };
 
-  system.stateVersion = "26.05";
+  system.nixos.tags =
+    let
+      cfg = config.boot.loader.raspberry-pi;
+    in
+    [
+      "raspberry-pi-${cfg.variant}"
+      cfg.bootloader
+      config.boot.kernelPackages.kernel.version
+    ];
+
+  system.stateVersion = config.system.nixos.release;
 }

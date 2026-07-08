@@ -61,6 +61,15 @@
   #   openFirewall = true;
   #   uiPort = 8080;
   # };
+  system.nixos.tags =
+    let
+      cfg = config.boot.loader.raspberry-pi;
+    in
+    [
+      "raspberry-pi-${cfg.variant}"
+      cfg.bootloader
+      config.boot.kernelPackages.kernel.version
+    ];
 
-  system.stateVersion = "26.05";
+  system.stateVersion = config.system.nixos.release;
 }

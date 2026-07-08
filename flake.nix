@@ -29,9 +29,17 @@
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-26.05";
+
     nixos-raspberrypi = {
       url = "github:nvmd/nixos-raspberrypi/nixos-26.05";
     };
+
+    nixos-images = {
+      url = "github:nvmd/nixos-images/sdimage-installer";
+      inputs.nixos-stable.follows = "nixpkgs";
+      inputs.nixos-unstable.follows = "nixpkgs";
+    };
+
     nixos-anywhere = {
       url = "github:nix-community/nixos-anywhere";
     };
@@ -156,7 +164,40 @@
           ];
         };
 
+        installer-cm4 = nixos-raspberrypi.lib.nixosInstaller {
+          specialArgs = { inherit inputs nixos-raspberrypi; };
+          modules = [
+            (
+              {
+                config,
+                pkgs,
+                lib,
+                nixos-raspberrypi,
+                disko,
+                ...
+              }:
+              {
+                imports = with nixos-raspberrypi.nixosModules; [
+                  raspberry-pi-4.base
+                  raspberry-pi-4.display-vc4
+                  ./hosts/installer/configuration.nix
+                  ./hosts/installer/hardware.nix
+                ];
+              }
+            )
+          ];
+        };
       };
+
+      installerImages =
+        let
+          nixos = self.nixosConfigurations;
+          mkImage = nixosConfig: nixosConfig.config.system.build.sdImage;
+        in
+        {
+          installer-cm4 = mkImage nixos.installer-cm4;
+          installer-cm5 = mkImage nixos.installer-cm5;
+        };
 
     };
 }
