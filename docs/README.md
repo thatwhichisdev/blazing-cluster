@@ -43,10 +43,10 @@ git clone https://github.com/thatwhichisdev/blazing-cluster.git ~/.config/blazin
 
 ### Modify the installer configuration
 
-For the best experience, add your public SSH key to the installer configuration.
-This allows you to SSH into the installer without typing a password.
+For the best experience, add your public SSH key to the configuration. This
+allows you to SSH into the installer and final system without typing a password.
 
-Modify following sections in `/hosts/installer/configuration.nix`
+Modify following sections in `/modules/openssh.nix`
 
 ```nix
 users.users.nixos.openssh.authorizedKeys.keys = [
@@ -58,8 +58,7 @@ users.users.root.openssh.authorizedKeys.keys = [
 ];
 ```
 
-You can also add extra tools or temporary settings to the installer image if
-needed.
+You can also add extra tools or settings to the installer image if needed.
 
 Keep in mind that this installer system is not the final system. It is only used
 to boot the board and run nixos-anywhere.
@@ -230,21 +229,6 @@ NixOS system with nixos-anywhere.
 
 The final system is installed to the SSD. Disk partitioning and ZFS setup are
 handled by disko using the configuration from `/modules/disko.nix`.
-
-Before we install the system, again we need to set up SSH key so we can login
-into the system after installation is done.
-
-Modify following sections in `/modules/openssh.nix`
-
-```nix
-users.users.nixos.openssh.authorizedKeys.keys = [
-  "<your public ssh key here>"
-];
-
-users.users.root.openssh.authorizedKeys.keys = [
-  "<your public ssh key here>"
-];
-```
 
 To install system run:
 

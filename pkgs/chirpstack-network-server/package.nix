@@ -1,11 +1,20 @@
-{ lib, stdenvNoCC, fetchurl, autoPatchelfHook, sqlite, openssl, zlib
-, gcc-unwrapped, systemd }:
+{
+  lib,
+  stdenvNoCC,
+  fetchurl,
+  autoPatchelfHook,
+  sqlite,
+  openssl,
+  zlib,
+  gcc-unwrapped,
+  systemd,
+}:
 
 let
   version = "4.15.0";
-  url =
-    "https://artifacts.chirpstack.io/downloads/chirpstack/chirpstack_${version}_sqlite_linux_arm64.tar.gz";
-in stdenvNoCC.mkDerivation {
+  url = "https://artifacts.chirpstack.io/downloads/chirpstack/chirpstack_${version}_sqlite_linux_arm64.tar.gz";
+in
+stdenvNoCC.mkDerivation {
   pname = "chirpstack-network-server";
   inherit version;
 
@@ -17,7 +26,13 @@ in stdenvNoCC.mkDerivation {
 
   nativeBuildInputs = [ autoPatchelfHook ];
 
-  buildInputs = [ sqlite openssl zlib gcc-unwrapped.lib systemd ];
+  buildInputs = [
+    sqlite
+    openssl
+    zlib
+    gcc-unwrapped.lib
+    systemd
+  ];
 
   unpackPhase = ''
     runHook preUnpack
@@ -46,8 +61,7 @@ in stdenvNoCC.mkDerivation {
   '';
 
   meta = with lib; {
-    description =
-      "ChirpStack LoRaWAN Network Server (SQLite) - upstream prebuilt binary";
+    description = "ChirpStack LoRaWAN Network Server (SQLite) - upstream prebuilt binary";
     homepage = "https://www.chirpstack.io/";
     license = licenses.mit;
     platforms = [ "aarch64-linux" ];

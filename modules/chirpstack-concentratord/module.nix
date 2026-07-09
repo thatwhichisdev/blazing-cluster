@@ -1,23 +1,32 @@
-{ config, lib, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 
 let
   cfg = config.services.chirpstack-concentratord;
 
-  defaultPkg =
-    pkgs.callPackage ../../pkgs/chirpstack-concentratord/package.nix { };
+  defaultPkg = pkgs.callPackage ../../pkgs/chirpstack-concentratord/package.nix { };
 
   configDir = cfg.configDir;
-  configSource = if cfg.configFile != null then
-    cfg.configFile
-  else
-    pkgs.writeText "concentratord.toml" cfg.configText;
+  configSource =
+    if cfg.configFile != null then
+      cfg.configFile
+    else
+      pkgs.writeText "concentratord.toml" cfg.configText;
 
-  exec = lib.concatStringsSep " " ([
-    "${cfg.package}/bin/${cfg.binaryName}"
-    "-c"
-    "${configDir}/concentratord.toml"
-  ] ++ cfg.extraArgs);
-in {
+  exec = lib.concatStringsSep " " (
+    [
+      "${cfg.package}/bin/${cfg.binaryName}"
+      "-c"
+      "${configDir}/concentratord.toml"
+    ]
+    ++ cfg.extraArgs
+  );
+in
+{
   options.services.chirpstack-concentratord = {
     enable = lib.mkEnableOption "ChirpStack Concentratord";
 
@@ -45,8 +54,7 @@ in {
     stateDir = lib.mkOption {
       type = lib.types.str;
       default = "/var/lib/chirpstack-concentratord";
-      description =
-        "Writable state directory (logs/runtime files if configured).";
+      description = "Writable state directory (logs/runtime files if configured).";
     };
 
     configDir = lib.mkOption {
@@ -67,8 +75,7 @@ in {
         # Provide TOML via services.chirpstack-concentratord.configFile
         # or override this inline TOML.
       '';
-      description =
-        "Inline concentratord.toml content used when configFile is null.";
+      description = "Inline concentratord.toml content used when configFile is null.";
     };
 
     extraArgs = lib.mkOption {
@@ -120,7 +127,10 @@ in {
 
         NoNewPrivileges = true;
         ProtectSystem = "no";
-        ReadWritePaths = [ cfg.stateDir "/run/chirpstack-concentratord" ];
+        ReadWritePaths = [
+          cfg.stateDir
+          "/run/chirpstack-concentratord"
+        ];
       };
     };
   };

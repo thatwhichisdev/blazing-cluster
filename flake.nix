@@ -165,21 +165,44 @@
         };
 
         installer-cm4 = nixos-raspberrypi.lib.nixosInstaller {
-          specialArgs = { inherit inputs nixos-raspberrypi; };
+          specialArgs = {
+            inherit inputs nixos-raspberrypi;
+            installerVariant = "cm4";
+          };
           modules = [
             (
               {
-                config,
-                pkgs,
-                lib,
                 nixos-raspberrypi,
-                disko,
                 ...
               }:
               {
                 imports = with nixos-raspberrypi.nixosModules; [
                   raspberry-pi-4.base
                   raspberry-pi-4.display-vc4
+                  ./hosts/installer/configuration.nix
+                  ./hosts/installer/hardware.nix
+                ];
+              }
+            )
+          ];
+        };
+
+        installer-cm5 = nixos-raspberrypi.lib.nixosInstaller {
+          specialArgs = {
+            inherit inputs nixos-raspberrypi;
+            installerVariant = "cm5";
+          };
+          modules = [
+            (
+              {
+                nixos-raspberrypi,
+                ...
+              }:
+              {
+                imports = with nixos-raspberrypi.nixosModules; [
+                  raspberry-pi-5.base
+                  raspberry-pi-5.display-vc4
+                  raspberry-pi-5.page-size-16k
                   ./hosts/installer/configuration.nix
                   ./hosts/installer/hardware.nix
                 ];

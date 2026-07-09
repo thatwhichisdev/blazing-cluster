@@ -1,1 +1,4 @@
-{ pkgs, ... }: { environment.systemPackages = [ pkgs.sqlite ]; }
+{ pkgs, ... }:
+{
+  environment.systemPackages = [ pkgs.sqlite ];
+}

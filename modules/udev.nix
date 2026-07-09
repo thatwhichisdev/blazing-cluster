@@ -1,4 +1,5 @@
-{ ... }: {
+{ ... }:
+{
   services.udev.extraRules = ''
     # Ignore partitions with "Required Partition" GPT partition attribute
     # On our RPis this is firmware (/boot/firmware) partition

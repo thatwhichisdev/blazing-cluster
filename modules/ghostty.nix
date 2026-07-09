@@ -1,15 +1,20 @@
-{ ... }: {
-  environment.variables = { TERMINAL = "ghostty"; };
+{ ... }:
+{
+  environment.variables = {
+    TERMINAL = "ghostty";
+  };
 
-  home-manager.sharedModules = [{
+  home-manager.sharedModules = [
+    {
 
-    programs.ghostty = {
-      enable = true;
+      programs.ghostty = {
+        enable = true;
 
-      settings = {
-        font-size = 18;
-        cursor-style = "block";
+        settings = {
+          font-size = 18;
+          cursor-style = "block";
+        };
       };
-    };
-  }];
+    }
+  ];
 }

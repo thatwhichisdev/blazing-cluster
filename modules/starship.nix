@@ -1,33 +1,36 @@
-{ ... }: {
-  home-manager.sharedModules = [{
+{ ... }:
+{
+  home-manager.sharedModules = [
+    {
 
-    programs.starship = {
-      enable = true;
-      settings = {
-        add_newline = false;
+      programs.starship = {
+        enable = true;
+        settings = {
+          add_newline = false;
 
-        command_timeout = 1300;
-        scan_timeout = 30;
+          command_timeout = 1300;
+          scan_timeout = 30;
 
-        format = "$hostname$directory$character";
+          format = "$hostname$directory$character";
 
-        hostname = {
-          ssh_only = true;
-          ssh_symbol = "";
-        };
+          hostname = {
+            ssh_only = true;
+            ssh_symbol = "";
+          };
 
-        directory = {
-          format = "[$path]($style) ";
-          truncation_length = 1;
-          fish_style_pwd_dir_length = 1;
-        };
+          directory = {
+            format = "[$path]($style) ";
+            truncation_length = 1;
+            fish_style_pwd_dir_length = 1;
+          };
 
-        character = {
-          success_symbol = "|>";
-          error_symbol = "|>";
+          character = {
+            success_symbol = "|>";
+            error_symbol = "|>";
+          };
         };
       };
-    };
 
-  }];
+    }
+  ];
 }

@@ -3,12 +3,14 @@
   lib,
   modulesPath,
   inputs,
+  installerVariant,
   ...
 }:
 {
   imports = [
-    ../../modules/nix.nix
     inputs.nixos-images.nixosModules.sdimage-installer
+    ../../modules/nix.nix
+    ../../modules/openssh.nix
   ];
 
   disabledModules = [
@@ -17,18 +19,8 @@
     (modulesPath + "/installer/sd-card/sd-image-aarch64-installer.nix")
   ];
 
-  services.openssh.enable = true;
-
-  networking.hostName = "installer";
+  networking.hostName = "installer-${installerVariant}";
   networking.wireless.enable = lib.mkForce false;
-
-  users.users.nixos.openssh.authorizedKeys.keys = [
-    "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILV1M/5M3gI/UpR1OR/zRAe3Eg03UYZDk2EptG78L14k nan0br3aker@gmail.com"
-  ];
-
-  users.users.root.openssh.authorizedKeys.keys = [
-    "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILV1M/5M3gI/UpR1OR/zRAe3Eg03UYZDk2EptG78L14k nan0br3aker@gmail.com"
-  ];
 
   image.baseName = lib.mkOverride 40 "nixos-${config.networking.hostName}";
 

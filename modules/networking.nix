@@ -1,4 +1,5 @@
-{ ... }: {
+{ ... }:
+{
   networking.useNetworkd = true;
   networking.firewall.allowedUDPPorts = [ 5353 ];
   networking.wireless.enable = false;
