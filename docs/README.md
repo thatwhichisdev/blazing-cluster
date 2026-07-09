@@ -1,27 +1,38 @@
 # Preview
 
-![preview_0](screenshot-0.png)
+![preview](preview.jpg)
 
 # Overview
 
-Repository that guides you on how to configure your own cluster of compute
-blades using nixos. Based on
-![nixos-raspberrypi](https://github.com/nvmd/nixos-raspberrypi) which makes it
-possible to install nixos on compute modules.
+This repository shows how to configure and install NixOS on a cluster of Compute
+Blade boards.
+
+The repository includes:
+
+- Guide on how to install and maintenance NixOS on your Compute Blade nodes.
+- Custom installer images for compute module 4/5.
+- Host configurations for individual Compute Blade nodes.
+
+It is based on ![nixos-raspberrypi](https://github.com/nvmd/nixos-raspberrypi),
+which provides NixOS support for Raspberry Pi Compute Modules.
 
 # Getting Started
 
+This guide explains how to boot a temporary NixOS installer image and then
+install the final NixOS system onto the ComputeBlade SSD.
+
 ## Prerequisites
 
-- compute blade (dev version)
-- ssd
-- sd card (in case if you don't have an eMMC version of compute module)
-- network switch with poe+ support
-- (optional) more compute blades
+- Uptime Compute Blade DEV
+- Raspberry Pi Compute Module 4/5
+- NVMe SSD
+- SD Card, only if your Compute Module doesn't have eMMC
+- Network Switch POE+
+- Linux machine with Nix
 
-## Installer Image Generation
+## Build the Installer Image
 
-### Clone repository
+### Clone the repository
 
 Clone the repository wherever you want to keep your cluster configuration files.
 I usually keep mine under `~/.config.`.
@@ -30,11 +41,10 @@ I usually keep mine under `~/.config.`.
 git clone https://github.com/thatwhichisdev/blazing-cluster.git ~/.config/blazing-cluster
 ```
 
-### Enrich the installer config with SSH keys
+### Modify the installer configuration
 
-For the best experience I strongly recommend you to provide your public SSH keys
-into the installer config so you can connect to the installer later on without
-providing the password.
+For the best experience, add your public SSH key to the installer configuration.
+This allows you to SSH into the installer without typing a password.
 
 Modify following sections in `/hosts/installer/configuration.nix`
 
@@ -48,79 +58,111 @@ users.users.root.openssh.authorizedKeys.keys = [
 ];
 ```
 
-Additionally you can configure installer with additial tools or whatever you
-want, but we'll re-install the system anyway using `nixos-anywhere` so installer
-nixos image is temporary thing.
+You can also add extra tools or temporary settings to the installer image if
+needed.
 
-### Build the installer SD image
+Keep in mind that this installer system is not the final system. It is only used
+to boot the board and run nixos-anywhere.
 
-This repo defines two installers for both compute module 4 and 5, you can also
-reference [nixos-repository](https://github.com/nvmd/nixos-raspberrypi) to see
-how to build you image or use the pre-built one.
+### Build the installer image
 
-Run following command to generate installer for compute module 5
+This repository defines separate installer images for Compute Module 4 and
+Compute Module 5.
 
-```shell
-nix --accept-flake-config build .#installerImages.installer-cm5
-```
-
-and for compute module 4
+Run following command to generate installer, replace `<cmX>` with desired target
+`cm4` or `cm5`.
 
 ```shell
-nix --accept-flake-config build .#installerImages.installer-cm4
+nix --accept-flake-config build .#installerImages.installer-<cmX>
 ```
 
-As command finished, you will find generated images within project folder,
-follow the path `result/sd-image/nixos-installer-cm*.img.zst`.
+After the build finishes, the generated image will be available under
+`result/sd-image/nixos-installer-<cmX>.img.zst`
 
-## Installer Image Flashing
+## Flash the Installer Image
 
-### Flash the image onto SD card
+### Flash the image to SD card
 
-I'm using linux and hence `dd` utility helps me write image to the sd card,
-connect your sd card and locate it using `lsblk` command, usually they are
-displayed as `sdX` where `X` is a random letter, no need to mount.
+Use this method only if your Compute Module does not have eMMC.
 
-Then use the command template from below to write generated image to the sd
-card.
+Connect the SD card to your Linux machine and find its device name using `lsblk`
+command. It usually appears as something like `/dev/sdX`. No mounting needed.
+
+Flash the image with following command:
 
 ```shell
 sudo dd if=result/sd-image/nixos-installer-cm4.img.zst of=/dev/sdX bs=4M status=progress conv=fsync
 ```
 
+Be careful: use the whole disk, for example `/dev/sdX`, not a partition like
+`/dev/sdX1`.
+
 ### Flash the image onto eMMC
 
-Will describe this process later, since it's more complicated and requires
-additional tools.
+Use this method if your Compute Module has onboard eMMC.
+
+This process requires putting the Compute Module into USB boot mode and flashing
+the eMMC from your Linux machine.
+
+This section will be documented later.
 
 ## Booting Installer Image
 
-Now as you have you SD card with installer image ready to go you can insert it
-into the compute blade and boot the board.
+After flashing the installer image, insert the SD card into the ComputeBlade and
+power on the board.
 
-You should be able to locate the blade on you local network, the hostname will
-be `installer`.
+Once the board boots, find it on your local network. The hostname should be
+`installer`.
 
-## Installing NixOS
-
-So now when we finally have our board booted with the installer image we can
-install the actual NixOS configuration, unfortunatly there is no way currently
-to install NixOS directly on the SSD or do it over the network, so we always
-have to install NixOS using temporary installer image.
-
-Run following command to install NixOS using `nixos-anywhere`, you should supply
-you system configuration and hostname. Disko will set up SSD using the ZFS
-configuration provided in `/modules/disko.nix`.
+You can SSH into the installer with:
 
 ```shell
-nixos-anywhere --flake .#<system> root@<hostname>"
+ssh root@installer
 ```
 
-As soon as the process is done you should be able to SSH into the system.
+Or by IP address, which you can locate in your router admin panel:
+
+```shell
+ssh root@<installer-ip-address>
+```
+
+If you added your SSH key to the installer configuration, key-based login should
+work automatically, otherwise you need to connect external display via HDMI
+cable and copy the password from the welcome message.
+
+## Install NixOS
+
+After the board has booted into the temporary installer image, install the final
+NixOS system with nixos-anywhere.
+
+The final system is installed to the SSD. Disk partitioning and ZFS setup are
+handled by disko using the configuration from `/modules/disko.nix`.
+
+To install system run:
+
+```shell
+nixos-anywhere --flake .#<system> root@<hostname>
+```
+
+Example:
+
+```shell
+nixos-anywhere --flake .#cb1 root@installer
+```
+
+Or, using an IP address:
+
+```shell
+nixos-anywhere --flake .#cb1 root@192.168.0.100
+```
+
+When the installation finishes, you should then be able to SSH into the final
+NixOS host.
 
 # Maintenance
 
-Will describe later how to manage your system and apply changes remotely.
+This section will later describe how to manage the cluster and apply
+configuration changes remotely.
 
 # Licensing
 
