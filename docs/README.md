@@ -204,12 +204,12 @@ After flashing the installer image, power on the board, if you're using SD card
 don't forget to insert it.
 
 Once the board boots, find it on your local network. The hostname should be
-`installer`.
+`installer-<cmX>`.
 
 You can SSH into the installer with mDNS:
 
 ```shell
-ssh root@installer-cmX.local
+ssh root@installer-<cmX>.local
 ```
 
 Or by IP address, which you can locate in your router admin panel:
