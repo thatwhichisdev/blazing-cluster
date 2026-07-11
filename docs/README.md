@@ -16,6 +16,9 @@ The repository includes:
 It is based on ![nixos-raspberrypi](https://github.com/nvmd/nixos-raspberrypi),
 which provides NixOS support for Raspberry Pi Compute Modules.
 
+> [!NOTE] This guide expects that you are an experienced NixOS user, it doesn't
+> cover how to create flake based configuration.
+
 # Getting Started
 
 This guide explains how to boot a temporary NixOS installer image and then
@@ -94,8 +97,8 @@ with yours:
 zstdcat result/sd-image/nixos-installer-<cmX>.img.zst | sudo dd of=/dev/sdX bs=4M status=progress conv=fsync
 ```
 
-Be careful: use the whole disk, for example `/dev/sdX`, not a partition like
-`/dev/sdX1`.
+> ![WARNING] Be careful: use the whole disk, for example `/dev/sdX`, not a
+> partition like `/dev/sdX1`.
 
 As confirmation that flashing completed successfully you will see metrics in the
 console:
@@ -186,8 +189,8 @@ with yours:
 zstdcat result/sd-image/nixos-installer-<cmX>.img.zst | sudo dd of=/dev/sdX bs=4M status=progress conv=fsync
 ```
 
-Be careful: use the whole disk, for example `/dev/sdX`, not a partition like
-`/dev/sdX1`.
+> ![WARNING] Be careful: use the whole disk, for example `/dev/sdX`, not a
+> partition like `/dev/sdX1`.
 
 As confirmation that flashing completed successfully you will see metrics in the
 console:
@@ -203,19 +206,12 @@ console:
 After flashing the installer image, power on the board, if you're using SD card
 don't forget to insert it.
 
-Once the board boots, find it on your local network. The hostname should be
-`installer-<cmX>`.
+Once the board boots, find it's IP address on your local network.
 
-You can SSH into the installer with mDNS:
-
-```shell
-ssh root@installer-<cmX>.local
-```
-
-Or by IP address, which you can locate in your router admin panel:
+You can SSH into the installer with:
 
 ```shell
-ssh root@<installer-ip-address>
+ssh root@<hostname>
 ```
 
 If you added your SSH key to the installer configuration, key-based login should
@@ -233,7 +229,7 @@ handled by disko using the configuration from `/modules/disko.nix`.
 To install system run:
 
 ```shell
-nix run github:nix-community/nixos-anywhere -- --flake .#<system> root@<installer-ip-address>
+nix run github:nix-community/nixos-anywhere -- --flake .#<system> root@<hostname>
 ```
 
 Example:
@@ -272,13 +268,23 @@ ssh: connect to host 192.168.0.161 port 22: Connection refused
 Now, connect via SSH and enjoy!
 
 ```shell
-ssh nixos@<ip-address>
+ssh nixos@<hostname>
 ```
 
 # Maintenance
 
-This section will later describe how to manage the cluster and apply
-configuration changes remotely.
+To change configuration of the running system you can simply run:
+
+```shell
+nixos-rebuild switch --flake .#<system> --target-host root@<hostname>
+```
+
+Otherwise you can clone this repository to the compute blade and run
+`nixos-rebuild` directly on it, in my case I'm running Asahi Linux on M1 Mac, so
+I have aarch64 on my main machine and building remotely usually is best choice
+for me. If you have different architecture on your main machine builds might
+take very long time to build, in that case you can indeed try to apply changes
+within the blade itself.
 
 # Licensing
 
