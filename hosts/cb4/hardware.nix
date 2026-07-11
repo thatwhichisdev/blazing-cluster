@@ -45,7 +45,7 @@
 
         pciex1_gen = {
           enable = true;
-          value = "3";
+          value = "2";
         };
       };
     };
