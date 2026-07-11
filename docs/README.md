@@ -16,8 +16,9 @@ The repository includes:
 It is based on ![nixos-raspberrypi](https://github.com/nvmd/nixos-raspberrypi),
 which provides NixOS support for Raspberry Pi Compute Modules.
 
-> [!NOTE] This guide expects that you are an experienced NixOS user, it doesn't
-> cover how to create flake based configuration.
+> [!NOTE]
+> This guide expects that you are an experienced NixOS user, it doesn't cover
+> how to create flake based configuration.
 
 # Getting Started
 
@@ -97,8 +98,9 @@ with yours:
 zstdcat result/sd-image/nixos-installer-<cmX>.img.zst | sudo dd of=/dev/sdX bs=4M status=progress conv=fsync
 ```
 
-> ![WARNING] Be careful: use the whole disk, for example `/dev/sdX`, not a
-> partition like `/dev/sdX1`.
+> [!WARNING]
+> Be careful: use the whole disk, for example `/dev/sdX`, not a partition like
+> `/dev/sdX1`.
 
 As confirmation that flashing completed successfully you will see metrics in the
 console:
@@ -189,8 +191,9 @@ with yours:
 zstdcat result/sd-image/nixos-installer-<cmX>.img.zst | sudo dd of=/dev/sdX bs=4M status=progress conv=fsync
 ```
 
-> ![WARNING] Be careful: use the whole disk, for example `/dev/sdX`, not a
-> partition like `/dev/sdX1`.
+> [!WARNING]
+> Be careful: use the whole disk, for example `/dev/sdX`, not a partition like
+> `/dev/sdX1`.
 
 As confirmation that flashing completed successfully you will see metrics in the
 console:
