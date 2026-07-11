@@ -27,6 +27,8 @@
     ../../modules/chirpstack-gateway-bridge/module.nix
     ../../modules/nix.nix
     ../../modules/security.nix
+    ../../modules/blazing-fan.nix
+    ../../modules/ghostty.nix
   ];
 
   networking.hostId = "32835dd8";

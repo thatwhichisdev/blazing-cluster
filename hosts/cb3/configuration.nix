@@ -29,6 +29,8 @@
     ../../modules/chirpstack-network-server/module.nix
     ../../modules/nix.nix
     ../../modules/security.nix
+    ../../modules/blazing-fan.nix
+    ../../modules/ghostty.nix
   ];
 
   networking.hostId = "20a48094";

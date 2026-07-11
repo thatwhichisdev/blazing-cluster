@@ -16,6 +16,27 @@
         "type": "github"
       }
     },
+    "blazing-fan": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1783772446,
+        "narHash": "sha256-FGxSlZ+qKs0RagxqwjTW/XBqvv0e7Ms0lzhFYefC39c=",
+        "owner": "thatwhichisdev",
+        "repo": "blazing-fan",
+        "rev": "1106b84e0f17a346a9c8e42bfb65c8ffe817b128",
+        "type": "github"
+      },
+      "original": {
+        "owner": "thatwhichisdev",
+        "ref": "master",
+        "repo": "blazing-fan",
+        "type": "github"
+      }
+    },
     "disko": {
       "inputs": {
         "nixpkgs": [
@@ -82,11 +103,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1783221248,
-        "narHash": "sha256-ESQnuNHEDChsB4IxoLRhscVahqkDWkTb+qdIz8euYt4=",
+        "lastModified": 1783740085,
+        "narHash": "sha256-qajyHfZY29G2oEQk+uHxmsJcRoBUBXP9maTpFlwP/dI=",
         "owner": "nix-community",
         "repo": "home-manager",
-        "rev": "af2beae5f0fae0a4310cc0e6aef2572f56090353",
+        "rev": "3cd22efe6471dc7365c822bd9ad73a21e55f38fb",
         "type": "github"
       },
       "original": {
@@ -287,11 +308,11 @@
     },
     "nixpkgs_3": {
       "locked": {
-        "lastModified": 1783389287,
-        "narHash": "sha256-0xIy4dVLqq47rA+mRy0hXDfjhQd4E5PoIns/RmB7nR4=",
+        "lastModified": 1783703440,
+        "narHash": "sha256-O3/YajjWo001VUIgD8BwaRdSNLUFe7nZ1qV5TwhRBcw=",
         "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "0ad6f47ea4fe188f4bc8f0380f93ae8523337c6c",
+        "rev": "8f0500b9660505dc3cb647775fe9a978a74b5283",
         "type": "github"
       },
       "original": {
@@ -303,6 +324,7 @@
     },
     "root": {
       "inputs": {
+        "blazing-fan": "blazing-fan",
         "disko": "disko",
         "home-manager": "home-manager",
         "nixos-anywhere": "nixos-anywhere",

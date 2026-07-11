@@ -25,6 +25,8 @@
     ../../modules/fonts.nix
     ../../modules/nix.nix
     ../../modules/security.nix
+    ../../modules/blazing-fan.nix
+    ../../modules/ghostty.nix
   ];
 
   networking.hostId = "d3c2bfdf";

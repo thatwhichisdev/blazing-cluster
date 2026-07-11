@@ -53,6 +53,11 @@
       url = "github:nix-community/disko";
       inputs.nixpkgs.follows = "nixos-raspberrypi/nixpkgs";
     };
+
+    blazing-fan = {
+      url = "github:thatwhichisdev/blazing-fan/master";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs =
