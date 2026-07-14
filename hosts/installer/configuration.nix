@@ -26,6 +26,8 @@
     helix
   ];
 
+  boot.zfs.forceImportRoot = false;
+
   networking.hostName = "installer-${installerVariant}";
   networking.wireless.enable = lib.mkForce false;
 

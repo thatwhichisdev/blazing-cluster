@@ -10,7 +10,7 @@ Blade boards.
 The repository includes:
 
 - Guide on how to install and maintenance NixOS on your Compute Blade nodes.
-- Custom installer images for compute module 4/5.
+- Custom installer images for Compute Module 4 and 5.
 - Host configurations for individual Compute Blade nodes.
 
 It is based on ![nixos-raspberrypi](https://github.com/nvmd/nixos-raspberrypi),
@@ -27,12 +27,13 @@ install the final NixOS system onto the Compute Blade's SSD.
 
 ## Prerequisites
 
-- Uptime Compute Blade DEV
-- Raspberry Pi Compute Module 4/5
+- Uptime Compute Blade DEV Board
+- Raspberry Pi Compute Module 4 or 5
 - NVMe SSD
 - SD Card, only if your Compute Module doesn't have eMMC
-- Network Switch POE+
 - Linux machine with Nix
+- (optional) Network Switch with POE+, but it is possible to power Blade with
+  the USB-C
 
 ## Build the Installer Image
 
@@ -65,7 +66,7 @@ users.users.root.openssh.authorizedKeys.keys = [
 You can also add extra tools or settings to the installer image if needed.
 
 Keep in mind that this installer system is not the final system. It is only used
-to boot the board and run nixos-anywhere.
+to boot the board and run `nixos-anywhere`.
 
 ### Build the installer image
 
@@ -294,8 +295,8 @@ within the blade itself.
 
 ## Update the bootloader EEPROM
 
-If you wish to update the bootloader EEPROM of your compute module 4/5 boards
-you can follow the steps below, unlike the booting Compute Module over USB in
+If you wish to update the bootloader EEPROM of your Compute Module boards you
+can follow the steps below, unlike the booting Compute Module over USB in
 `Flash the image onto eMMC` section, we actually want to reference to most
 recent commits, so for that we'll have to clone the repository and build the
 tool.

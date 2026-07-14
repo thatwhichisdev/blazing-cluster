@@ -1,5 +1,5 @@
 {
-  description = "compute blade nixos flake based cluster configuration";
+  description = "NixOS cluster configuration for Compute Blades";
 
   nixConfig = {
     extra-substituters = [
@@ -18,6 +18,7 @@
     ];
 
     trusted-users = [
+      "thatwhichisapple"
       "root"
       "@build"
       "@wheel"
@@ -30,34 +31,22 @@
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-26.05";
 
-    nixos-raspberrypi = {
-      url = "github:nvmd/nixos-raspberrypi/nixos-26.05";
-    };
+    nixos-raspberrypi.url = "github:nvmd/nixos-raspberrypi/nixos-26.05";
 
-    nixos-images = {
-      url = "github:nvmd/nixos-images/sdimage-installer";
-      inputs.nixos-stable.follows = "nixpkgs";
-      inputs.nixos-unstable.follows = "nixpkgs";
-    };
+    nixos-images.url = "github:nvmd/nixos-images/sdimage-installer";
+    nixos-images.inputs.nixos-stable.follows = "nixpkgs";
+    nixos-images.inputs.nixos-unstable.follows = "nixpkgs";
 
-    nixos-anywhere = {
-      url = "github:nix-community/nixos-anywhere";
-    };
+    nixos-anywhere.url = "github:nix-community/nixos-anywhere";
 
-    home-manager = {
-      url = "github:nix-community/home-manager/release-26.05";
-      inputs.nixpkgs.follows = "nixos-raspberrypi/nixpkgs";
-    };
+    home-manager.url = "github:nix-community/home-manager/release-26.05";
+    home-manager.inputs.nixpkgs.follows = "nixos-raspberrypi/nixpkgs";
 
-    disko = {
-      url = "github:nix-community/disko";
-      inputs.nixpkgs.follows = "nixos-raspberrypi/nixpkgs";
-    };
+    disko.url = "github:nix-community/disko";
+    disko.inputs.nixpkgs.follows = "nixos-raspberrypi/nixpkgs";
 
-    blazing-fan = {
-      url = "github:thatwhichisdev/blazing-fan/master";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
+    blazing-fan.url = "github:thatwhichisdev/blazing-fan/master";
+    blazing-fan.inputs.nixpkgs.follows = "nixpkgs";
   };
 
   outputs =
@@ -80,11 +69,7 @@
           modules = [
             (
               {
-                config,
-                pkgs,
-                lib,
                 nixos-raspberrypi,
-                disko,
                 ...
               }:
               {
@@ -103,11 +88,7 @@
           modules = [
             (
               {
-                config,
-                pkgs,
-                lib,
                 nixos-raspberrypi,
-                disko,
                 ...
               }:
               {
@@ -126,11 +107,7 @@
           modules = [
             (
               {
-                config,
-                pkgs,
-                lib,
                 nixos-raspberrypi,
-                disko,
                 ...
               }:
               {
@@ -150,11 +127,7 @@
           modules = [
             (
               {
-                config,
-                pkgs,
-                lib,
                 nixos-raspberrypi,
-                disko,
                 ...
               }:
               {
@@ -217,15 +190,10 @@
         };
       };
 
-      installerImages =
-        let
-          nixos = self.nixosConfigurations;
-          mkImage = nixosConfig: nixosConfig.config.system.build.sdImage;
-        in
-        {
-          installer-cm4 = mkImage nixos.installer-cm4;
-          installer-cm5 = mkImage nixos.installer-cm5;
-        };
+      packages.aarch64-linux = {
+        installer-cm4 = self.nixosConfigurations.installer-cm4.config.system.build.sdImage;
+        installer-cm5 = self.nixosConfigurations.installer-cm5.config.system.build.sdImage;
+      };
 
       formatter.aarch64-linux = nixpkgs.legacyPackages.aarch64-linux.nixfmt-tree;
     };

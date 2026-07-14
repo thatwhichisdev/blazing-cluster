@@ -1,6 +1,8 @@
 { ... }:
 {
   boot.supportedFilesystems = [ "zfs" ];
+  boot.zfs.forceImportRoot = false;
+
   services.zfs.autoScrub.enable = true;
   services.zfs.trim.enable = true;
 
@@ -59,18 +61,15 @@
 
           swap = {
             size = "8G";
-            type = "8200"; # Linux swap
+            type = "8200";
 
             content = {
               type = "swap";
               discardPolicy = "both";
               priority = 10;
 
-              # false unless you want hibernation/resume from this swap.
-              # For servers, usually keep this false.
               resumeDevice = false;
 
-              # Optional. Makes boot less brittle if the device is missing.
               mountOptions = [ "nofail" ];
             };
           };
