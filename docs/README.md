@@ -77,7 +77,7 @@ Run following command to generate installer, replace `cmX` with desired
 instalation target `cm4` or `cm5`.
 
 ```shell
-nix --accept-flake-config build .#installerImages.installer-cmX
+nix --accept-flake-config build .#installer-cmX
 ```
 
 After the build finishes, the generated image will be available under
@@ -279,6 +279,25 @@ ssh nixos@<hostname>
 ```
 
 # Maintenance
+
+## Checking
+
+Before building a system configuration, you can check the flake for evaluation
+errors and other issues.
+
+```shell
+nix flake check
+```
+
+## Formatting
+
+To format repository simply run
+
+```shell
+nix fmt
+```
+
+## Building
 
 To change configuration of the running system you can simply run:
 

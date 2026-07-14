@@ -60,6 +60,13 @@
     }:
     let
       inherit (self) outputs;
+
+      supportedSystems = [
+        "aarch64-linux"
+        "x86_64-linux"
+      ];
+
+      forAllSystems = nixpkgs.lib.genAttrs supportedSystems;
     in
     {
       nixosConfigurations = {
@@ -190,11 +197,11 @@
         };
       };
 
-      packages.aarch64-linux = {
+      packages = forAllSystems (_system: {
         installer-cm4 = self.nixosConfigurations.installer-cm4.config.system.build.sdImage;
         installer-cm5 = self.nixosConfigurations.installer-cm5.config.system.build.sdImage;
-      };
+      });
 
-      formatter.aarch64-linux = nixpkgs.legacyPackages.aarch64-linux.nixfmt-tree;
+      formatter = forAllSystems (system: nixpkgs.legacyPackages.${system}.nixfmt-tree);
     };
 }
