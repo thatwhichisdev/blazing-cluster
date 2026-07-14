@@ -307,6 +307,12 @@ repository.
 git clone https://github.com/raspberrypi/usbboot ~/usbboot
 ```
 
+Update the EEPROM submodule
+
+```shell
+git submodule update --init
+```
+
 Install the neccessary tools in order to build the binary
 
 ```shell
