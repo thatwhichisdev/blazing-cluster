@@ -23,7 +23,7 @@ which provides NixOS support for Raspberry Pi Compute Modules.
 # Getting Started
 
 This guide explains how to boot a temporary NixOS installer image and then
-install the final NixOS system onto the ComputeBlade SSD.
+install the final NixOS system onto the Compute Blade's SSD.
 
 ## Prerequisites
 
@@ -72,15 +72,15 @@ to boot the board and run nixos-anywhere.
 This repository defines separate installer images for Compute Module 4 and
 Compute Module 5.
 
-Run following command to generate installer, replace `<cmX>` with desired target
-`cm4` or `cm5`.
+Run following command to generate installer, replace `cmX` with desired
+instalation target `cm4` or `cm5`.
 
 ```shell
-nix --accept-flake-config build .#installerImages.installer-<cmX>
+nix --accept-flake-config build .#installerImages.installer-cmX
 ```
 
 After the build finishes, the generated image will be available under
-`result/sd-image/nixos-installer-<cmX>.img.zst`
+`result/sd-image/nixos-installer-cmX.img.zst`
 
 ## Flash the Installer Image
 
@@ -91,11 +91,11 @@ Use this method only if your Compute Module does not have eMMC.
 Connect the SD card to your Linux machine and find its device name using `lsblk`
 command. It usually appears as something like `/dev/sdX`. No mounting needed.
 
-Flash the image with following command, replace installer and target devices
-with yours:
+Flash the image with following command, replace `cmX` and `sdX` with yours. with
+yours:
 
 ```shell
-zstdcat result/sd-image/nixos-installer-<cmX>.img.zst | sudo dd of=/dev/sdX bs=4M status=progress conv=fsync
+zstdcat result/sd-image/nixos-installer-cmX.img.zst | sudo dd of=/dev/sdX bs=4M status=progress conv=fsync
 ```
 
 > [!WARNING]
@@ -118,10 +118,13 @@ Use this method if your Compute Module has onboard eMMC.
 This process requires putting the Compute Module into USB boot mode and flashing
 the eMMC from your Linux machine.
 
-First, we need to install official raspberry's `rpiboot` tool to boot our
-compute module over USB.
+First, we need to install official raspberry's
+![usbboot](https://github.com/raspberrypi/usbboot) tool to boot our compute
+module over USB using `mass-storage-gadget` extension.
 
-For simplicity, I just install it via `nix-shell`, run following command:
+You can clone the official repository and build it following the official guide
+or a more simple way would be to install it from `nixpkgs` via `nix-shell`, for
+that just run following command:
 
 ```shell
 nix-shell -p rpiboot
@@ -184,11 +187,11 @@ sda           8:0    1   7.3G  0 disk
 └─sda2        8:2    1   6.3G  0 part
 ```
 
-Flash the image with following command, replace installer and target devices
-with yours:
+Flash the image with following command, replace `cmX` and `sdX` with yours. with
+yours:
 
 ```shell
-zstdcat result/sd-image/nixos-installer-<cmX>.img.zst | sudo dd of=/dev/sdX bs=4M status=progress conv=fsync
+zstdcat result/sd-image/nixos-installer-cmX.img.zst | sudo dd of=/dev/sdX bs=4M status=progress conv=fsync
 ```
 
 > [!WARNING]
@@ -288,6 +291,141 @@ I have aarch64 on my main machine and building remotely usually is best choice
 for me. If you have different architecture on your main machine builds might
 take very long time to build, in that case you can indeed try to apply changes
 within the blade itself.
+
+## Update the bootloader EEPROM
+
+If you wish to update the bootloader EEPROM of your compute module 4/5 boards
+you can follow the steps below, unlike the booting Compute Module over USB in
+`Flash the image onto eMMC` section, we actually want to reference to most
+recent commits, so for that we'll have to clone the repository and build the
+tool.
+
+Clone the official ![usbboot](https://github.com/raspberrypi/usbboot)
+repository.
+
+```shell
+git clone https://github.com/raspberrypi/usbboot ~/usbboot
+```
+
+Install the neccessary tools in order to build the binary
+
+```shell
+nix-shell -p pkg-config libusb1 gcc gnumake
+```
+
+Build the binary
+
+```shell
+make
+```
+
+Now you can update the EEPROM
+
+For Compute Module 4:
+
+```shell
+sudo rpiboot -d recovery
+```
+
+For Compute Module 5:
+
+```shell
+sudo rpiboot -d recovery5
+```
+
+You will see following:
+
+```shell
+[nix-shell:~/development/raspberrypi/usbboot]$ sudo ./rpiboot -v -d recovery
+RPIBOOT: build-date 2026/07/13 pkg-version local 87d6e032
+
+Please fit the EMMC_DISABLE / nRPIBOOT jumper before connecting the power and USB cables to the target device.
+If the device fails to connect then please see https://rpltd.co/rpiboot for debugging tips.
+
+Boot directory 'recovery'
+Loading: recovery/bootcode4.bin
+Waiting for BCM2835/6/7/2711/2712...
+```
+
+Move the USB switch on the Compute Blade to the USB Type-C position. Then, while
+holding down the nRPIBOOT button on the blade connect the USB Type-C cable. You
+will see following:
+
+```shell
+Device located successfully
+Loading: recovery/bootcode4.bin
+Initialised device correctly
+Found serial number 3
+last_serial -1 serial 3
+Sending bootcode.bin
+libusb_bulk_transfer sent 24 bytes; returned 0
+Writing 100140 bytes
+libusb_bulk_transfer sent 100140 bytes; returned 0
+Successful read 4 bytes
+Waiting for BCM2835/6/7/2711/2712...
+
+Device located successfully
+Loading: recovery/bootcode4.bin
+Initialised device correctly
+Found serial number 4
+last_serial -1 serial 4
+Second stage boot server
+Received message GetFileSize: config.txt
+Loading: recovery/config.txt
+File size = 254 bytes
+Received message ReadFile: config.txt
+File read: config.txt
+libusb_bulk_transfer sent 254 bytes; returned 0
+Received message GetFileSize: pieeprom.bin
+libusb_bulk_transfer sent 0 bytes; returned 0
+Cannot open file pieeprom.bin
+Received message GetFileSize: pieeprom.upd
+libusb_bulk_transfer sent 0 bytes; returned 0
+Cannot open file pieeprom.upd
+Received message GetFileSize: *USER_SERIAL_NUM*7b335499
+{
+        "USER_SERIAL_NUM": "7b335499"libusb_bulk_transfer sent 0 bytes; returned 0
+Received message GetFileSize: *MAC_ADDR*2c:cf:67:22:08:f4
+,
+        "MAC_ADDR": "2c:cf:67:22:08:f4"libusb_bulk_transfer sent 0 bytes; returned 0
+Received message GetFileSize: *CUSTOMER_KEY_HASH*0000000000000000000000000000000000000000000000000000000000000000
+,
+        "CUSTOMER_KEY_HASH": "0000000000000000000000000000000000000000000000000000000000000000"libusb_bulk_transfer sent 0 bytes; returned 0
+Received message GetFileSize: *BOOT_ROM*000048b0
+,
+        "BOOT_ROM": "000048b0"libusb_bulk_transfer sent 0 bytes; returned 0
+Received message GetFileSize: *BOARD_ATTR*40000000
+,
+        "BOARD_ATTR": "40000000"libusb_bulk_transfer sent 0 bytes; returned 0
+Received message GetFileSize: *USER_BOARDREV*c03141
+,
+        "USER_BOARDREV": "c03141"libusb_bulk_transfer sent 0 bytes; returned 0
+Received message GetFileSize: *JTAG_LOCKED*0
+,
+        "JTAG_LOCKED": "0"libusb_bulk_transfer sent 0 bytes; returned 0
+Received message GetFileSize: *ADVANCED_BOOT*0000e8e8
+,
+        "ADVANCED_BOOT": "0000e8e8"libusb_bulk_transfer sent 0 bytes; returned 0
+Received message Done: *ADVANCED_BOOT*0000e8e8
+CMD exit
+
+}
+Second stage boot server done
+```
+
+Congratz, you successfully updated the bootloader EEPROM.
+
+# Troubleshooting
+
+If you experiecing issues, it always handy to explore system logs and try to
+figure out what could be wrong, you can use following commands in such cases:
+
+Diagnostic messages is the go-to tool for viewing low-level hardware detection,
+driver initialization, and kernel error messages.
+
+```shell
+sudo dmesg -T -L
+```
 
 # Licensing
 

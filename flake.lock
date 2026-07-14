@@ -23,11 +23,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1783772446,
-        "narHash": "sha256-FGxSlZ+qKs0RagxqwjTW/XBqvv0e7Ms0lzhFYefC39c=",
+        "lastModified": 1783783143,
+        "narHash": "sha256-x3zF+YfWFWe14zzfEv3sWOoTJHn8BLU9T1ZSB7kR4mk=",
         "owner": "thatwhichisdev",
         "repo": "blazing-fan",
-        "rev": "1106b84e0f17a346a9c8e42bfb65c8ffe817b128",
+        "rev": "b2d6155ea6e2820720064e0b1de5f47ca51cceb7",
         "type": "github"
       },
       "original": {

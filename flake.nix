@@ -227,5 +227,6 @@
           installer-cm5 = mkImage nixos.installer-cm5;
         };
 
+      formatter.aarch64-linux = nixpkgs.legacyPackages.aarch64-linux.nixfmt-tree;
     };
 }

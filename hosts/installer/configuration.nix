@@ -1,9 +1,10 @@
 {
   config,
-  lib,
-  modulesPath,
   inputs,
   installerVariant,
+  lib,
+  modulesPath,
+  pkgs,
   ...
 }:
 {
@@ -11,12 +12,18 @@
     inputs.nixos-images.nixosModules.sdimage-installer
     ../../modules/nix.nix
     ../../modules/openssh.nix
+    ../../modules/time.nix
   ];
 
   disabledModules = [
     # Disable the standard nixos-images aarch64 installer module.
     # nixos-raspberrypi provides the RPi-specific image/boot logic instead.
     (modulesPath + "/installer/sd-card/sd-image-aarch64-installer.nix")
+  ];
+
+  environment.systemPackages = with pkgs; [
+    ghostty.terminfo
+    helix
   ];
 
   networking.hostName = "installer-${installerVariant}";

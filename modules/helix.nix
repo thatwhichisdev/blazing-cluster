@@ -3,21 +3,27 @@
   environment = {
     shellAliases.x = "hx";
   };
-  environment.systemPackages = [
-    pkgs.nixfmt-rfc-style
-    pkgs.nil
-    pkgs.clang
-    pkgs.clang-tools
+
+  environment.systemPackages = with pkgs; [
+    clang
+    clang-tools
+    helix
+    nil
+    nixfmt
+    nixfmt-tree
+    taplo
+    yaml-language-server
   ];
 
   home-manager.sharedModules = [
     {
-
       programs.helix = {
         enable = true;
         defaultEditor = true;
 
         settings = {
+          theme = "github_dark_high_contrast";
+
           editor = {
             auto-format = true;
             auto-completion = true;
@@ -28,6 +34,12 @@
             idle-timeout = 0;
             line-number = "relative";
             text-width = 140;
+
+            lsp = {
+              display-progress-messages = true;
+              display-color-swatches = true;
+              display-inlay-hints = true;
+            };
 
             cursor-shape = {
               insert = "bar";
@@ -63,16 +75,7 @@
             "C-/" = "toggle_comments";
           };
         };
-
-        themes = {
-          stylix-custom = {
-            "ui.linenr" = "#ffb757";
-            "ui.virtual.whitespace" = "#231f20";
-          };
-        };
-
       };
-
     }
   ];
 

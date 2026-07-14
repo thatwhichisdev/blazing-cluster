@@ -1,16 +1,43 @@
-{ ... }:
+{ lib, ... }:
 {
   hardware.bluetooth.enable = false;
   hardware.raspberry-pi.config = {
     all = {
       options = {
+        camera_auto_detect = {
+          enable = false;
+          value = false;
+        };
+
+        display_auto_detect = {
+          enable = false;
+          value = false;
+        };
+
         enable_uart = {
           enable = true;
           value = true;
         };
       };
 
+      dt-overlays = {
+        uart4 = {
+          enable = true;
+          params = { };
+        };
+
+        disable-bt = {
+          enable = true;
+          params = { };
+        };
+      };
+
       base-dt-params = {
+        audio = {
+          enable = lib.mkForce false;
+          value = "off";
+        };
+
         pciex1 = {
           enable = true;
           value = "on";
@@ -24,22 +51,18 @@
     };
 
     cm5 = {
-      dt-overlays = {
-        uart4-pi5 = {
+      options = {
+        # nixos-raspberrypi enables this by default.
+        # Disable it to remove any board/firmware boost behaviour.
+        arm_boost = {
           enable = true;
-          params = { };
+          value = false;
         };
 
-        disable-bt-pi5 = {
+        # Prevent firmware from holding turbo during early boot.
+        initial_turbo = {
           enable = true;
-          params = { };
-        };
-      };
-
-      base-dt-params = {
-        uart4 = {
-          enable = true;
-          value = "on";
+          value = 0;
         };
       };
     };

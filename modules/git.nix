@@ -9,8 +9,8 @@
         enable = true;
         settings = {
           core.editor = "hx";
-          user.name = "nanobreaker";
-          user.email = "nan0br3aker@gmail.com";
+          user.name = "thatwhichisdev";
+          user.email = "eager@thatwhichis.dev";
         };
       };
     }
