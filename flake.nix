@@ -45,6 +45,9 @@
     disko.url = "github:nix-community/disko";
     disko.inputs.nixpkgs.follows = "nixos-raspberrypi/nixpkgs";
 
+    agenix.url = "github:ryantm/agenix";
+    agenix.inputs.nixpkgs.follows = "nixpkgs";
+
     blazing-fan.url = "github:thatwhichisdev/blazing-fan/master";
     blazing-fan.inputs.nixpkgs.follows = "nixpkgs";
   };

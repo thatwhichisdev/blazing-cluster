@@ -9,6 +9,7 @@
   imports = [
     inputs.disko.nixosModules.disko
     inputs.home-manager.nixosModules.home-manager
+    inputs.agenix.nixosModules.default
     ../../modules/blazing-fan.nix
     ../../modules/boot.nix
     ../../modules/disko.nix
@@ -21,6 +22,7 @@
     ../../modules/nix.nix
     ../../modules/nushell.nix
     ../../modules/openssh.nix
+    ../../modules/opentelemetry.nix
     ../../modules/packages.nix
     ../../modules/security.nix
     ../../modules/starship.nix

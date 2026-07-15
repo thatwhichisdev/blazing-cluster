@@ -441,6 +441,151 @@ Second stage boot server done
 
 Congratz, you successfully updated the bootloader EEPROM.
 
+# Temelemetry
+
+If you wish to collect metrics and logs from compute blade then it is possible
+to achieve by enabling `opentelemetry-collector` and configuring it with your
+desired otel dashboard.
+
+Please explore `modules/opentelemetry.nix` to see how to configure one.
+
+Example of configuration file, I'm using agenix to encrypt it since it contains
+auth token, replace `<TOKEN>` with the token from your otel dashboard.
+
+```yaml
+extensions:
+  file_storage:
+    directory: /var/lib/opentelemetry-collector/storage
+    create_directory: true
+    recreate: true
+
+receivers:
+  hostmetrics:
+    collection_interval: 1m
+    scrapers:
+      cpu:
+        metrics:
+          system.cpu.utilization:
+            enabled: true
+
+      memory:
+        metrics:
+          system.memory.utilization:
+            enabled: true
+
+      load:
+
+      network:
+        exclude:
+          interfaces:
+            - lo
+          match_type: strict
+
+      disk:
+
+      filesystem:
+        exclude_fs_types:
+          fs_types:
+            - autofs
+            - devtmpfs
+            - overlay
+            - proc
+            - sysfs
+            - tmpfs
+          match_type: strict
+
+        exclude_mount_points:
+          mount_points:
+            - /boot
+            - /boot/firmware
+          match_type: strict
+
+        metrics:
+          system.filesystem.utilization:
+            enabled: true
+
+      paging:
+
+      processes:
+
+  journald:
+    journalctl_path: journalctl
+    start_at: end
+    priority: info
+    storage: file_storage
+    retry_on_failure:
+      enabled: true
+      initial_interval: 1s
+      max_interval: 30s
+      max_elapsed_time: 0
+
+processors:
+  memory_limiter:
+    check_interval: 5s
+    limit_mib: 128
+    spike_limit_mib: 32
+
+  resourcedetection:
+    detectors:
+      - env
+      - system
+    timeout: 2s
+    override: false
+
+  batch:
+    timeout: 5s
+    send_batch_size: 512
+
+exporters:
+  otlphttp/dash0:
+    endpoint: https://ingress.europe-west4.gcp.dash0.com
+    headers:
+      Authorization: Bearer <TOKEN>
+      Dash0-Dataset: default
+    compression: gzip
+
+    retry_on_failure:
+      enabled: true
+      initial_interval: 5s
+      max_interval: 30s
+      max_elapsed_time: 0
+
+    sending_queue:
+      enabled: true
+      storage: file_storage
+      queue_size: 1000
+      num_consumers: 2
+
+service:
+  extensions:
+    - file_storage
+
+  pipelines:
+    metrics:
+      receivers:
+        - hostmetrics
+      processors:
+        - memory_limiter
+        - resourcedetection
+        - batch
+      exporters:
+        - otlphttp/dash0
+
+    logs:
+      receivers:
+        - journald
+      processors:
+        - memory_limiter
+        - resourcedetection
+        - batch
+      exporters:
+        - otlphttp/dash0
+
+  telemetry:
+    logs:
+      level: info
+```
+
 # Troubleshooting
 
 If you experiecing issues, it always handy to explore system logs and try to
