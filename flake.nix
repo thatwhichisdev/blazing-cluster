@@ -45,6 +45,9 @@
     disko.url = "github:nix-community/disko";
     disko.inputs.nixpkgs.follows = "nixos-raspberrypi/nixpkgs";
 
+    treefmt-nix.url = "github:numtide/treefmt-nix";
+    treefmt-nix.inputs.nixpkgs.follows = "nixpkgs";
+
     agenix.url = "github:ryantm/agenix";
     agenix.inputs.nixpkgs.follows = "nixpkgs";
 
@@ -57,8 +60,6 @@
       self,
       nixpkgs,
       nixos-raspberrypi,
-      disko,
-      nixos-anywhere,
       ...
     }:
     let
@@ -70,10 +71,19 @@
       ];
 
       forAllSystems = nixpkgs.lib.genAttrs supportedSystems;
+
+      treefmtEval = forAllSystems (
+        system: inputs.treefmt-nix.lib.evalModule nixpkgs.legacyPackages.${system} ./modules/treefmt.nix
+      );
     in
     {
-      nixosConfigurations = {
+      formatter = forAllSystems (system: treefmtEval.${system}.config.build.wrapper);
 
+      checks = forAllSystems (system: {
+        formatting = treefmtEval.${system}.config.build.check self;
+      });
+
+      nixosConfigurations = {
         cb1 = nixos-raspberrypi.lib.nixosSystemFull {
           specialArgs = { inherit inputs outputs nixos-raspberrypi; };
           modules = [
@@ -204,7 +214,5 @@
         installer-cm4 = self.nixosConfigurations.installer-cm4.config.system.build.sdImage;
         installer-cm5 = self.nixosConfigurations.installer-cm5.config.system.build.sdImage;
       });
-
-      formatter = forAllSystems (system: nixpkgs.legacyPackages.${system}.nixfmt-tree);
     };
 }

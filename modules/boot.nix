@@ -1,5 +1,4 @@
-{ ... }:
-{
+_: {
   boot.loader.raspberry-pi.firmwarePath = "/boot/firmware";
   boot.loader.raspberry-pi.bootloader = "kernel";
   boot.tmp.useTmpfs = false;

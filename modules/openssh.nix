@@ -1,5 +1,4 @@
-{ ... }:
-{
+_: {
   services.getty.autologinUser = "nixos";
 
   services.openssh = {

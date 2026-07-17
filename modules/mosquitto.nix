@@ -1,5 +1,4 @@
-{ pkgs, ... }:
-{
+_: {
   services.mosquitto = {
     enable = true;
     listeners = [

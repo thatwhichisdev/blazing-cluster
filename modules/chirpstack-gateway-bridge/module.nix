@@ -10,7 +10,7 @@ let
 
   defaultPkg = pkgs.callPackage ../../pkgs/chirpstack-gateway-bridge/package.nix { };
 
-  configDir = cfg.configDir;
+  inherit (cfg) configDir;
 
   configSource =
     if cfg.configFile != null then

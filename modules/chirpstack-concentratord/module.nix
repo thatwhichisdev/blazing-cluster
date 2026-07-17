@@ -10,7 +10,7 @@ let
 
   defaultPkg = pkgs.callPackage ../../pkgs/chirpstack-concentratord/package.nix { };
 
-  configDir = cfg.configDir;
+  inherit (cfg) configDir;
   configSource =
     if cfg.configFile != null then
       cfg.configFile
@@ -89,7 +89,7 @@ in
     users.groups.${cfg.group} = { };
     users.users.${cfg.user} = {
       isSystemUser = true;
-      group = cfg.group;
+      inherit (cfg) group;
       home = cfg.stateDir;
       createHome = true;
       extraGroups = [ "dialout" ];

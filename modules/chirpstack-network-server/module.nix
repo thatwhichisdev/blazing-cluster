@@ -10,7 +10,7 @@ let
 
   defaultPkg = pkgs.callPackage ../../pkgs/chirpstack-network-server/package.nix { };
 
-  configDir = cfg.configDir;
+  inherit (cfg) configDir;
 
   configSource =
     if cfg.configFile != null then cfg.configFile else pkgs.writeText "chirpstack.toml" cfg.configText;
@@ -111,7 +111,7 @@ in
     users.groups.${cfg.group} = { };
     users.users.${cfg.user} = {
       isSystemUser = true;
-      group = cfg.group;
+      inherit (cfg) group;
       home = cfg.stateDir;
       createHome = true;
     };
