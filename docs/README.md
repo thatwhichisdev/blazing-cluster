@@ -441,7 +441,7 @@ Second stage boot server done
 
 Congratz, you successfully updated the bootloader EEPROM.
 
-# Temelemetry
+# Telemetry
 
 If you wish to collect metrics and logs from compute blade then it is possible
 to achieve by enabling `opentelemetry-collector` and configuring it with your
