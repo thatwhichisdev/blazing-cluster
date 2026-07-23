@@ -1,6 +1,6 @@
 # Preview
 
-![preview](preview.jpg)
+![preview](assets/preview.jpg)
 
 # Overview
 
@@ -90,13 +90,30 @@ After the build finishes, the generated image will be available under
 Use this method only if your Compute Module does not have eMMC.
 
 Connect the SD card to your Linux machine and find its device name using `lsblk`
-command. It usually appears as something like `/dev/sdX`. No mounting needed.
+command. It usually appears as something like `/dev/sdX` or `/dev/mmcblkX`. No
+mounting needed.
 
-Flash the image with following command, replace `cmX` and `sdX` with yours. with
-yours:
+Flash the image with two possible set of tools and replace `cmX` and target
+device with yours.
+
+Flashing with `bmaptool`:
 
 ```shell
-zstdcat result/sd-image/nixos-installer-cmX.img.zst | sudo dd of=/dev/sdX bs=4M status=progress conv=fsync
+sudo bmaptool copy --nobmap result/sd-image/nixos-installer-cmX.img.zst /dev/sdX
+```
+
+Flashing with `zstd` and `dd`:
+
+First, decompress the image
+
+```shell
+zstd --decompress --force result/sd-image/nixos-installer-cmX.img.zst --output result/sd-image/nixos-installer-cmX.img
+```
+
+Second, flash the decompressed image to the target device:
+
+```shell
+sudo dd if=result/sd-image/nixos-installer-cmX.img of=/dev/sdX bs=16M status=progress conv=fsync
 ```
 
 > [!WARNING]
@@ -112,7 +129,7 @@ console:
 1618251606 bytes (1.6 GB, 1.5 GiB) copied, 49.1864 s, 32.9 MB/s
 ```
 
-### Flash the image onto eMMC
+### Flash the image to eMMC
 
 Use this method if your Compute Module has onboard eMMC.
 
@@ -188,11 +205,27 @@ sda           8:0    1   7.3G  0 disk
 └─sda2        8:2    1   6.3G  0 part
 ```
 
-Flash the image with following command, replace `cmX` and `sdX` with yours. with
-yours:
+Flash the image with two possible set of tools and replace `cmX` and target
+device with yours.
+
+Flashing with `bmaptool`:
 
 ```shell
-zstdcat result/sd-image/nixos-installer-cmX.img.zst | sudo dd of=/dev/sdX bs=4M status=progress conv=fsync
+sudo bmaptool copy --nobmap result/sd-image/nixos-installer-cmX.img.zst /dev/sdX
+```
+
+Flashing with `zstd` and `dd`:
+
+First, decompress the image
+
+```shell
+zstd --decompress --force result/sd-image/nixos-installer-cmX.img.zst --output result/sd-image/nixos-installer-cmX.img
+```
+
+Second, flash the decompressed image to the target device:
+
+```shell
+sudo dd if=result/sd-image/nixos-installer-cmX.img of=/dev/sdX bs=16M status=progress conv=fsync
 ```
 
 > [!WARNING]
