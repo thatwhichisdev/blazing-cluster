@@ -27,6 +27,7 @@
     ../../modules/time.nix
     ../../modules/udev.nix
     ../../modules/yazi.nix
+    ../../modules/mosquitto.nix
   ];
 
   networking.hostId = "ab6cce0f";

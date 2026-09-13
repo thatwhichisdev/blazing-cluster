@@ -31,6 +31,7 @@
     ../../modules/udev.nix
     ../../modules/yazi.nix
     ../../modules/chirpstack-concentratord/module.nix
+    ../../modules/chirpstack-mqtt-forwarder/module.nix
   ];
 
   networking.hostId = "20a48094";
@@ -67,6 +68,11 @@
   services.chirpstack-concentratord = {
     enable = true;
     configFile = ../../modules/chirpstack-concentratord/concentratord.toml;
+  };
+
+  services.chirpstack-mqtt-forwarder = {
+    enable = true;
+    configFile = ../../modules/chirpstack-mqtt-forwarder/mqtt-forwarder.toml;
   };
 
   system.nixos.tags =
