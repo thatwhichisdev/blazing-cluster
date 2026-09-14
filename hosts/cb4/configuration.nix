@@ -28,6 +28,7 @@
     ../../modules/udev.nix
     ../../modules/yazi.nix
     ../../modules/mosquitto.nix
+    ../../modules/chirpstack-network-server.nix
   ];
 
   networking.hostId = "ab6cce0f";

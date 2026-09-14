@@ -30,8 +30,8 @@
     ../../modules/time.nix
     ../../modules/udev.nix
     ../../modules/yazi.nix
-    ../../modules/chirpstack-concentratord/module.nix
-    ../../modules/chirpstack-mqtt-forwarder/module.nix
+    ../../modules/chirpstack-concentratord.nix
+    ../../modules/chirpstack-mqtt-forwarder.nix
   ];
 
   networking.hostId = "20a48094";
@@ -63,16 +63,6 @@
   home-manager.users.root.home = {
     homeDirectory = lib.mkForce "/root";
     stateVersion = "26.05";
-  };
-
-  services.chirpstack-concentratord = {
-    enable = true;
-    configFile = ../../modules/chirpstack-concentratord/concentratord.toml;
-  };
-
-  services.chirpstack-mqtt-forwarder = {
-    enable = true;
-    configFile = ../../modules/chirpstack-mqtt-forwarder/mqtt-forwarder.toml;
   };
 
   system.nixos.tags =
