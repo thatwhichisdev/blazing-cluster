@@ -6,188 +6,202 @@
 }:
 
 let
-  cfg = config.services.chirpstack-network-server;
+  cfg = config.services.chirpstack;
 
   defaultPkg = pkgs.callPackage ../../pkgs/chirpstack-network-server/package.nix { };
 
-  inherit (cfg) configDir;
+  toml = pkgs.formats.toml { };
 
-  configSource =
-    if cfg.configFile != null then cfg.configFile else pkgs.writeText "chirpstack.toml" cfg.configText;
+  # enabled_regions is derived from services.chirpstack.regions so that the
+  # region ID only needs to be declared once.
+  settings = lib.recursiveUpdate cfg.settings {
+    network.enabled_regions = builtins.attrNames cfg.regions;
+  };
 
-  exec = lib.concatStringsSep " " (
+  configFile = toml.generate "chirpstack.toml" settings;
+
+  regionFiles = lib.mapAttrsToList (id: region: {
+    name = "region_${id}.toml";
+
+    path = toml.generate "region_${id}.toml" {
+      regions = [
+        (region // { inherit id; })
+      ];
+    };
+  }) cfg.regions;
+
+  # ChirpStack expects -c to point to a directory containing chirpstack.toml
+  # together with all region_*.toml files.
+  configDir = pkgs.linkFarm "chirpstack-config" (
     [
-      "${cfg.package}/bin/${cfg.binaryName}"
+      {
+        name = "chirpstack.toml";
+        path = configFile;
+      }
+    ]
+    ++ regionFiles
+  );
+
+  exec = lib.escapeShellArgs (
+    [
+      (lib.getExe cfg.package)
       "-c"
-      configDir
+      "${configDir}"
     ]
     ++ cfg.extraArgs
   );
 in
 {
-  options.services.chirpstack-network-server = {
-    enable = lib.mkEnableOption "ChirpStack Network Server (SQLite upstream binary)";
+  options.services.chirpstack = {
+    enable = lib.mkEnableOption "ChirpStack";
 
     package = lib.mkOption {
       type = lib.types.package;
       default = defaultPkg;
-      description = "Package providing the ChirpStack server binary.";
-    };
-
-    binaryName = lib.mkOption {
-      type = lib.types.str;
-      default = "chirpstack-network-server";
-      description = "Binary name inside the package's /bin.";
-    };
-
-    user = lib.mkOption {
-      type = lib.types.str;
-      default = "chirpstack";
-    };
-
-    group = lib.mkOption {
-      type = lib.types.str;
-      default = "chirpstack";
+      description = "ChirpStack package.";
     };
 
     stateDir = lib.mkOption {
       type = lib.types.str;
       default = "/var/lib/chirpstack";
-      description = "Writable state directory (SQLite db, etc).";
+      description = "ChirpStack state directory.";
     };
 
-    configDir = lib.mkOption {
-      type = lib.types.str;
-      default = "/etc/chirpstack";
-      description = "Directory passed to ChirpStack via -c. Must contain chirpstack.toml.";
-    };
-
-    configFile = lib.mkOption {
-      type = lib.types.nullOr lib.types.path;
-      default = null;
-      description = "Path to a chirpstack.toml file to install into /etc/chirpstack/chirpstack.toml.";
-    };
-
-    regionFiles = lib.mkOption {
-      type = lib.types.listOf lib.types.path;
-      default = [ ];
+    settings = lib.mkOption {
+      type = toml.type;
+      default = { };
       description = ''
-        List of region_*.toml files (e.g. region_eu868.toml) to be installed
-        alongside chirpstack.toml in the configDir.
+        Main ChirpStack configuration.
+
+        This is converted to chirpstack.toml. The network.enabled_regions
+        option is generated automatically from services.chirpstack.regions.
       '';
     };
 
-    configText = lib.mkOption {
-      type = lib.types.lines;
-      default = ''
-        # Provide TOML via services.chirpstack-network-server.configFile
-        # or override this text.
+    regions = lib.mkOption {
+      type = lib.types.attrsOf toml.type;
+      default = { };
+      description = ''
+        ChirpStack region configurations.
+
+        Each attribute creates a region_<id>.toml file. The attribute name
+        is used as the region ID and is automatically added to
+        network.enabled_regions.
       '';
-      description = "Inline chirpstack.toml content used when configFile is null.";
     };
 
     extraArgs = lib.mkOption {
       type = lib.types.listOf lib.types.str;
       default = [ ];
-      description = "Extra CLI args passed to the chirpstack binary.";
+      description = "Additional ChirpStack command-line arguments.";
     };
 
     openFirewall = lib.mkOption {
       type = lib.types.bool;
       default = false;
-      description = "Open uiPort in the firewall (TCP).";
+      description = "Open the ChirpStack API / web-interface port.";
     };
 
     uiPort = lib.mkOption {
       type = lib.types.port;
       default = 8080;
-      description = "Port to open when openFirewall=true. Must match your TOML bind.";
     };
   };
 
   config = lib.mkIf cfg.enable {
+    environment.systemPackages = [ cfg.package ];
 
-    # Create user/group
-    users.groups.${cfg.group} = { };
-    users.users.${cfg.user} = {
+    users.groups.chirpstack = { };
+
+    users.users.chirpstack = {
       isSystemUser = true;
-      inherit (cfg) group;
+      group = "chirpstack";
       home = cfg.stateDir;
-      createHome = true;
     };
 
-    # Ensure dirs exist with sane perms
     systemd.tmpfiles.rules = [
-      "d ${cfg.stateDir} 0750 ${cfg.user} ${cfg.group} - -"
-      "d ${cfg.configDir} 0755 root root - -"
+      "d ${cfg.stateDir} 0750 chirpstack chirpstack - -"
     ];
 
-    # Install region_*.toml files next to chirpstack.toml
-    environment.etc = lib.mkMerge (
-      [
-        {
-          "chirpstack/chirpstack.toml" = {
-            source = configSource;
-            mode = "0644";
-          };
-        }
-      ]
-      ++ map (
-        regionFile:
-        let
-          name = builtins.baseNameOf regionFile;
-        in
-        {
-          "chirpstack/${name}" = {
-            source = regionFile;
-            mode = "0644";
-          };
-        }
-      ) cfg.regionFiles
-    );
+    # Persistent ChirpStack database.
+    services.postgresql = {
+      enable = true;
 
-    # Service
-    systemd.services.chirpstack-network-server = {
-      description = "ChirpStack Network Server (SQLite)";
+      ensureDatabases = [ "chirpstack" ];
+
+      ensureUsers = [
+        {
+          name = "chirpstack";
+          ensureDBOwnership = true;
+        }
+      ];
+    };
+
+    # ChirpStack requires pg_trgm. Append this after NixOS has created
+    # the database and role.
+    systemd.services.postgresql-setup.script = lib.mkAfter ''
+      psql \
+        --dbname=chirpstack \
+        --command='CREATE EXTENSION IF NOT EXISTS pg_trgm;'
+    '';
+
+    # Metrics / cache backend. Local only.
+    services.redis.servers.chirpstack = {
+      enable = true;
+      bind = "127.0.0.1";
+      port = 6379;
+      openFirewall = false;
+    };
+
+    systemd.services.chirpstack = {
+      description = "ChirpStack";
       wantedBy = [ "multi-user.target" ];
 
-      # Wait for network + deps
       after = [
         "network-online.target"
         "mosquitto.service"
-        "redis.service"
-      ];
-      wants = [
-        "network-online.target"
-        "mosquitto.service"
-        "redis.service"
+        "postgresql-setup.service"
+        "redis-chirpstack.service"
       ];
 
-      # If you use a non-default redis unit name (e.g. redis-foo.service),
-      # change these. Minimal version assumes redis.service.
+      wants = [ "network-online.target" ];
+
+      requires = [
+        "mosquitto.service"
+        "postgresql-setup.service"
+        "redis-chirpstack.service"
+      ];
+
       serviceConfig = {
         Type = "simple";
-        User = cfg.user;
-        Group = cfg.group;
+
+        User = "chirpstack";
+        Group = "chirpstack";
 
         WorkingDirectory = cfg.stateDir;
         StateDirectory = "chirpstack";
-        # (StateDirectory creates /var/lib/chirpstack *only* if it's under /var/lib,
-        # but we already do tmpfiles; leaving it doesn't hurt.)
+        StateDirectoryMode = "0750";
 
         ExecStart = exec;
 
         Restart = "on-failure";
         RestartSec = 2;
 
-        # mild hardening without breaking sqlite writes
         NoNewPrivileges = true;
-        ProtectSystem = "no";
+        PrivateTmp = true;
+        ProtectHome = true;
+        ProtectSystem = "strict";
+
         ReadWritePaths = [ cfg.stateDir ];
+
+        RestrictAddressFamilies = [
+          "AF_UNIX"
+          "AF_INET"
+          "AF_INET6"
+        ];
       };
     };
 
-    # Firewall (optional)
     networking.firewall.allowedTCPPorts = lib.mkIf cfg.openFirewall [ cfg.uiPort ];
   };
 }

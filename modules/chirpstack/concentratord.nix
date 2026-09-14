@@ -54,7 +54,7 @@ in
     };
 
     settings = lib.mkOption {
-      type = toml.type;
+      inherit (toml) type;
       default = { };
       description = "ChirpStack Concentratord configuration.";
     };
