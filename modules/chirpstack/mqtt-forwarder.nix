@@ -8,19 +8,14 @@
 let
   cfg = config.services.chirpstack-mqtt-forwarder;
 
-  configSource =
-    if cfg.configFile != null then
-      cfg.configFile
-    else
-      pkgs.writeText "chirpstack-mqtt-forwarder.toml" cfg.configText;
-
-  configPath = "${cfg.configDir}/chirpstack-mqtt-forwarder.toml";
+  toml = pkgs.formats.toml { };
+  configFile = toml.generate "chirpstack-mqtt-forwarder.toml" cfg.settings;
 
   exec = lib.escapeShellArgs (
     [
       (lib.getExe cfg.package)
       "-c"
-      configPath
+      "${configFile}"
     ]
     ++ cfg.extraArgs
   );
@@ -46,22 +41,10 @@ in
       default = "chirpstack";
     };
 
-    configDir = lib.mkOption {
-      type = lib.types.str;
-      default = "/etc/chirpstack-mqtt-forwarder";
-      description = "Directory containing chirpstack-mqtt-forwarder.toml.";
-    };
-
-    configFile = lib.mkOption {
-      type = lib.types.nullOr lib.types.path;
-      default = null;
-      description = "Path to chirpstack-mqtt-forwarder.toml.";
-    };
-
-    configText = lib.mkOption {
-      type = lib.types.lines;
-      default = "";
-      description = "Inline configuration used when configFile is null.";
+    settings = lib.mkOption {
+      type = toml.type;
+      default = { };
+      description = "ChirpStack MQTT Forwarder configuration.";
     };
 
     extraArgs = lib.mkOption {
@@ -81,13 +64,9 @@ in
       inherit (cfg) group;
     };
 
-    environment.etc."chirpstack-mqtt-forwarder/chirpstack-mqtt-forwarder.toml" = {
-      source = configSource;
-      mode = "0644";
-    };
-
     systemd.services.chirpstack-mqtt-forwarder = {
       description = "ChirpStack MQTT Forwarder";
+
       wantedBy = [ "multi-user.target" ];
 
       after = [
@@ -100,6 +79,7 @@ in
 
       serviceConfig = {
         Type = "simple";
+
         User = cfg.user;
         Group = cfg.group;
 
