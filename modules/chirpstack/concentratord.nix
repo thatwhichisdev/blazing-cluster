@@ -8,19 +8,14 @@
 let
   cfg = config.services.chirpstack-concentratord;
 
-  configSource =
-    if cfg.configFile != null then
-      cfg.configFile
-    else
-      pkgs.writeText "concentratord.toml" cfg.configText;
-
-  configPath = "${cfg.configDir}/concentratord.toml";
+  toml = pkgs.formats.toml { };
+  configFile = toml.generate "concentratord.toml" cfg.settings;
 
   exec = lib.escapeShellArgs (
     [
       (lib.getExe' cfg.package cfg.binaryName)
       "-c"
-      configPath
+      "${configFile}"
     ]
     ++ cfg.extraArgs
   );
@@ -58,22 +53,10 @@ in
       description = "Writable state directory.";
     };
 
-    configDir = lib.mkOption {
-      type = lib.types.str;
-      default = "/etc/chirpstack-concentratord";
-      description = "Directory containing concentratord.toml.";
-    };
-
-    configFile = lib.mkOption {
-      type = lib.types.nullOr lib.types.path;
-      default = null;
-      description = "Path to concentratord.toml.";
-    };
-
-    configText = lib.mkOption {
-      type = lib.types.lines;
-      default = "";
-      description = "Inline concentratord.toml used when configFile is null.";
+    settings = lib.mkOption {
+      type = toml.type;
+      default = { };
+      description = "ChirpStack Concentratord configuration.";
     };
 
     extraArgs = lib.mkOption {
@@ -100,13 +83,7 @@ in
 
     systemd.tmpfiles.rules = [
       "d ${cfg.stateDir} 0750 ${cfg.user} ${cfg.group} - -"
-      "d ${cfg.configDir} 0755 root root - -"
     ];
-
-    environment.etc."chirpstack-concentratord/concentratord.toml" = {
-      source = configSource;
-      mode = "0644";
-    };
 
     systemd.services.chirpstack-concentratord = {
       description = "ChirpStack Concentratord";
